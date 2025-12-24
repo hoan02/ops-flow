@@ -3,9 +3,11 @@ import { initReactI18next } from 'react-i18next'
 import en from '../../locales/en.json'
 import ar from '../../locales/ar.json'
 import fr from '../../locales/fr.json'
+import vi from '../../locales/vi.json'
 
 const resources = {
   en: { translation: en },
+  vi: { translation: vi },
   ar: { translation: ar },
   fr: { translation: fr },
 }
