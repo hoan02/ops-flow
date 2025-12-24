@@ -12,7 +12,6 @@ pub mod registry;
 pub mod sonarqube;
 
 pub use errors::IntegrationError;
-pub use registry::{clear_cache, get_adapter, load_credentials};
 
 use crate::types::{Integration, IntegrationType};
 use async_trait::async_trait;
@@ -63,23 +62,25 @@ pub fn create_adapter(
 
     match integration.integration_type {
         IntegrationType::GitLab => {
-            let token = credentials
-                .token
-                .as_ref()
-                .ok_or_else(|| IntegrationError::ConfigError {
-                    message: "GitLab integration requires a token".to_string(),
-                })?;
+            let token =
+                credentials
+                    .token
+                    .as_ref()
+                    .ok_or_else(|| IntegrationError::ConfigError {
+                        message: "GitLab integration requires a token".to_string(),
+                    })?;
 
             let adapter = gitlab::GitLabAdapter::new(integration.base_url.clone(), token.clone());
             Ok(Box::new(adapter))
         }
         IntegrationType::Jenkins => {
-            let username = credentials
-                .username
-                .as_ref()
-                .ok_or_else(|| IntegrationError::ConfigError {
-                    message: "Jenkins integration requires a username".to_string(),
-                })?;
+            let username =
+                credentials
+                    .username
+                    .as_ref()
+                    .ok_or_else(|| IntegrationError::ConfigError {
+                        message: "Jenkins integration requires a username".to_string(),
+                    })?;
 
             // Use password or token (both can be used as password in Basic Auth)
             let password = credentials
@@ -98,23 +99,26 @@ pub fn create_adapter(
             Ok(Box::new(adapter))
         }
         IntegrationType::SonarQube => {
-            let token = credentials
-                .token
-                .as_ref()
-                .ok_or_else(|| IntegrationError::ConfigError {
-                    message: "SonarQube integration requires a token".to_string(),
-                })?;
+            let token =
+                credentials
+                    .token
+                    .as_ref()
+                    .ok_or_else(|| IntegrationError::ConfigError {
+                        message: "SonarQube integration requires a token".to_string(),
+                    })?;
 
-            let adapter = sonarqube::SonarQubeAdapter::new(integration.base_url.clone(), token.clone());
+            let adapter =
+                sonarqube::SonarQubeAdapter::new(integration.base_url.clone(), token.clone());
             Ok(Box::new(adapter))
         }
         IntegrationType::Keycloak => {
-            let username = credentials
-                .username
-                .as_ref()
-                .ok_or_else(|| IntegrationError::ConfigError {
-                    message: "Keycloak integration requires a username".to_string(),
-                })?;
+            let username =
+                credentials
+                    .username
+                    .as_ref()
+                    .ok_or_else(|| IntegrationError::ConfigError {
+                        message: "Keycloak integration requires a username".to_string(),
+                    })?;
 
             // Use password or token (both can be used as password in Basic Auth)
             let password = credentials
@@ -137,15 +141,9 @@ pub fn create_adapter(
             // This function is synchronous, so we return an error here
             // The command layer will create the adapter asynchronously
             Err(IntegrationError::ConfigError {
-                message: "Kubernetes adapter must be created asynchronously in command layer".to_string(),
+                message: "Kubernetes adapter must be created asynchronously in command layer"
+                    .to_string(),
             })
         }
-        _ => Err(IntegrationError::ConfigError {
-            message: format!(
-                "Adapter for {:?} is not yet implemented",
-                integration.integration_type
-            ),
-        }),
     }
 }
-

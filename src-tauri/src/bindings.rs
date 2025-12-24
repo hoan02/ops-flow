@@ -23,6 +23,7 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         config::save_environments,
         config::load_integrations,
         config::save_integrations,
+        config::test_integration_connection,
         config::load_mappings,
         config::save_mappings,
         // Credentials management commands

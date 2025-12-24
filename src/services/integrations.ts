@@ -185,3 +185,27 @@ export function useDeleteIntegrationCredentials() {
   })
 }
 
+// Test connection hook
+export function useTestIntegrationConnection() {
+  return useMutation({
+    mutationFn: async (integrationId: string) => {
+      logger.debug('Testing connection for integration', { integrationId })
+      const result = await commands.testIntegrationConnection(integrationId)
+
+      if (result.status === 'error') {
+        logger.error('Connection test failed', {
+          error: result.error,
+          integrationId,
+        })
+        toast.error('Connection test failed', {
+          description: result.error,
+        })
+        throw new Error(result.error)
+      }
+
+      logger.info('Connection test successful', { integrationId })
+      toast.success('Connection test successful')
+      return result.data
+    },
+  })
+}

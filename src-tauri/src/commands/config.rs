@@ -150,6 +150,84 @@ pub async fn save_integrations(app: AppHandle, integrations: Vec<Integration>) -
     save_yaml_config(&integrations_path, &integrations)
 }
 
+/// Tests the connection to an integration service.
+#[tauri::command]
+#[specta::specta]
+pub async fn test_integration_connection(
+    app: AppHandle,
+    integration_id: String,
+) -> Result<bool, String> {
+    log::debug!("Testing connection for integration: {}", integration_id);
+
+    use crate::integrations::registry::load_credentials;
+    use crate::integrations::create_adapter;
+    use crate::types::IntegrationType;
+    use crate::integrations::errors::IntegrationError;
+
+    // Load integration
+    let integrations = load_integrations(app.clone()).await?;
+    let integration = integrations
+        .into_iter()
+        .find(|i| i.id == integration_id)
+        .ok_or_else(|| format!("Integration not found: {}", integration_id))?;
+
+    // Special handling for Kubernetes (async adapter creation)
+    if integration.integration_type == IntegrationType::Kubernetes {
+        use crate::integrations::{IntegrationAdapter, kubernetes::KubernetesAdapter};
+        let credentials = load_credentials(&app, &integration)
+            .await
+            .map_err(|e| format!("Failed to load credentials: {}", e))?;
+
+        // Get kubeconfig path from custom fields or use defaults
+        let kubeconfig_path = credentials
+            .custom
+            .get("kubeconfig_path")
+            .cloned()
+            .or_else(|| {
+                // Try default paths
+                if let Some(home) = dirs::home_dir() {
+                    let microk8s_config = home.join(".kube").join("microk8s-config");
+                    if microk8s_config.exists() {
+                        return Some(microk8s_config.to_string_lossy().to_string());
+                    }
+                    let default_config = home.join(".kube").join("config");
+                    if default_config.exists() {
+                        return Some(default_config.to_string_lossy().to_string());
+                    }
+                }
+                None
+            })
+            .ok_or_else(|| {
+                "Kubernetes integration requires a kubeconfig_path in custom fields or default kubeconfig file".to_string()
+            })?;
+
+        let adapter = KubernetesAdapter::new(kubeconfig_path)
+            .await
+            .map_err(|e| format!("Failed to create Kubernetes adapter: {}", e))?;
+
+        let result: Result<(), IntegrationError> = adapter.test_connection().await;
+        result.map_err(|e| format!("Connection test failed: {}", e))?;
+        log::info!("Successfully tested connection for integration: {}", integration_id);
+        return Ok(true);
+    }
+
+    // For other integrations, use the standard adapter creation
+    let credentials = load_credentials(&app, &integration)
+        .await
+        .map_err(|e| format!("Failed to load credentials: {}", e))?;
+
+    let adapter = create_adapter(&integration, &credentials)
+        .map_err(|e| format!("Failed to create adapter: {}", e))?;
+
+    adapter
+        .test_connection()
+        .await
+        .map_err(|e| format!("Connection test failed: {}", e))?;
+
+    log::info!("Successfully tested connection for integration: {}", integration_id);
+    Ok(true)
+}
+
 // ============================================================================
 // Mappings Commands
 // ============================================================================

@@ -210,6 +210,17 @@ async saveIntegrations(integrations: Integration[]) : Promise<Result<null, strin
 }
 },
 /**
+ * Tests the connection to an integration service.
+ */
+async testIntegrationConnection(integrationId: string) : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("test_integration_connection", { integrationId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Loads all mappings from disk.
  */
 async loadMappings() : Promise<Result<Mapping[], string>> {
