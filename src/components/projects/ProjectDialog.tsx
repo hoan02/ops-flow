@@ -33,10 +33,12 @@ export function ProjectDialog({
   const saveProjects = useSaveProjects()
 
   const isEditMode = project !== null
-  
+
   // Initialize state from props - component resets when key changes
   const [name, setName] = useState(() => project?.name ?? '')
-  const [description, setDescription] = useState(() => project?.description ?? '')
+  const [description, setDescription] = useState(
+    () => project?.description ?? ''
+  )
   const [nameError, setNameError] = useState('')
 
   // Reset state when project or open changes using key prop
@@ -163,4 +165,3 @@ export function ProjectDialog({
     </Dialog>
   )
 }
-

@@ -47,10 +47,7 @@ export function useKeycloakRealms(integrationId: string) {
  * Cache TTL: 5-10 minutes (clients don't change often).
  * Note: Requires admin access. Returns empty list if admin access is not available.
  */
-export function useKeycloakClients(
-  integrationId: string,
-  realm: string
-) {
+export function useKeycloakClients(integrationId: string, realm: string) {
   return useQuery({
     queryKey: keycloakQueryKeys.clients(integrationId, realm),
     queryFn: async () => {
@@ -78,4 +75,3 @@ export function useKeycloakClients(
     },
   })
 }
-

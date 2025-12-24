@@ -139,4 +139,3 @@ pub async fn trigger_jenkins_build(
         .await
         .map_err(|e| format!("Failed to trigger build: {}", e))
 }
-

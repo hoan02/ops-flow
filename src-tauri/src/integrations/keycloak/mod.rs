@@ -63,7 +63,7 @@ impl KeycloakAdapter {
         if !status.is_success() {
             let error_text = response.text().await.unwrap_or_default();
             log::error!("Keycloak API error ({}): {}", status, error_text);
-            
+
             // Handle permission errors gracefully (403/404 for admin endpoints)
             if status == 403 || status == 404 {
                 // Return a more user-friendly error for permission issues
@@ -74,7 +74,7 @@ impl KeycloakAdapter {
                     ),
                 });
             }
-            
+
             return Err(crate::integrations::errors::status_to_error(
                 status.as_u16(),
                 Some(error_text),
@@ -95,7 +95,7 @@ impl KeycloakAdapter {
     /// this will return an error. The error is handled gracefully.
     pub async fn fetch_realms(&self) -> Result<Vec<KeycloakRealm>, IntegrationError> {
         let endpoint = "/admin/realms";
-        
+
         // Try to fetch realms, but handle permission errors gracefully
         let response: Vec<Value> = match self.get(endpoint).await {
             Ok(realms) => realms,
@@ -137,13 +137,15 @@ impl KeycloakAdapter {
         realm: &str,
     ) -> Result<Vec<KeycloakClient>, IntegrationError> {
         let endpoint = format!("/admin/realms/{}/clients", urlencoding::encode(realm));
-        
+
         // Try to fetch clients, but handle permission errors gracefully
         let response: Vec<Value> = match self.get(&endpoint).await {
             Ok(clients) => clients,
             Err(IntegrationError::AuthError { .. }) => {
                 // If we don't have admin access, return empty list with a warning
-                log::warn!("Admin access not available for fetching clients. Returning empty list.");
+                log::warn!(
+                    "Admin access not available for fetching clients. Returning empty list."
+                );
                 return Ok(Vec::new());
             }
             Err(e) => return Err(e),
@@ -234,4 +236,3 @@ mod tests {
         );
     }
 }
-

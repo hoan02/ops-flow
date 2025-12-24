@@ -78,10 +78,15 @@ impl GitLabAdapter {
         // Try to parse as JSON
         serde_json::from_str::<T>(&response_text).map_err(|e| {
             log::error!("Failed to parse GitLab API response as JSON: {}", e);
-            log::error!("Response body (first 500 chars): {}", 
-                response_text.chars().take(500).collect::<String>());
+            log::error!(
+                "Response body (first 500 chars): {}",
+                response_text.chars().take(500).collect::<String>()
+            );
             IntegrationError::ConfigError {
-                message: format!("Failed to parse response: error decoding response body: {}", e),
+                message: format!(
+                    "Failed to parse response: error decoding response body: {}",
+                    e
+                ),
             }
         })
     }
@@ -126,10 +131,15 @@ impl GitLabAdapter {
         // Try to parse as JSON
         serde_json::from_str::<T>(&response_text).map_err(|e| {
             log::error!("Failed to parse GitLab API response as JSON: {}", e);
-            log::error!("Response body (first 500 chars): {}", 
-                response_text.chars().take(500).collect::<String>());
+            log::error!(
+                "Response body (first 500 chars): {}",
+                response_text.chars().take(500).collect::<String>()
+            );
             IntegrationError::ConfigError {
-                message: format!("Failed to parse response: error decoding response body: {}", e),
+                message: format!(
+                    "Failed to parse response: error decoding response body: {}",
+                    e
+                ),
             }
         })
     }
@@ -149,9 +159,11 @@ impl GitLabAdapter {
     }
 
     /// Fetches webhooks for a specific project.
-    pub async fn fetch_webhooks(&self, project_id: u32) -> Result<Vec<GitLabWebhook>, IntegrationError> {
-        self.get(&format!("/projects/{}/hooks", project_id))
-            .await
+    pub async fn fetch_webhooks(
+        &self,
+        project_id: u32,
+    ) -> Result<Vec<GitLabWebhook>, IntegrationError> {
+        self.get(&format!("/projects/{}/hooks", project_id)).await
     }
 
     /// Triggers a pipeline for a specific project.
@@ -185,7 +197,7 @@ impl IntegrationAdapter for GitLabAdapter {
             .await?;
 
         let status = response.status();
-        
+
         // Get response body first to check content type
         let response_text = response.text().await.map_err(|e| {
             log::error!("Failed to read GitLab API response body: {}", e);
@@ -198,19 +210,26 @@ impl IntegrationAdapter for GitLabAdapter {
         if response_text.trim().is_empty() {
             log::error!("GitLab API returned empty response");
             return Err(IntegrationError::ConfigError {
-                message: "GitLab API returned empty response. Please check your base URL and token.".to_string(),
+                message:
+                    "GitLab API returned empty response. Please check your base URL and token."
+                        .to_string(),
             });
         }
 
         // Check if response is HTML (common when base URL is wrong or pointing to web UI)
         let trimmed = response_text.trim_start();
-        if trimmed.starts_with("<!DOCTYPE") || trimmed.starts_with("<html") || trimmed.starts_with("<HTML") {
+        if trimmed.starts_with("<!DOCTYPE")
+            || trimmed.starts_with("<html")
+            || trimmed.starts_with("<HTML")
+        {
             log::error!("GitLab API returned HTML instead of JSON");
-            log::error!("Response body (first 500 chars): {}", 
-                response_text.chars().take(500).collect::<String>());
+            log::error!(
+                "Response body (first 500 chars): {}",
+                response_text.chars().take(500).collect::<String>()
+            );
             log::error!("Full URL used: {}", url);
             log::error!("Base URL configured: {}", self.base_url);
-            
+
             return Err(IntegrationError::ConfigError {
                 message: format!(
                     "GitLab API returned HTML instead of JSON. This usually means:\n\
@@ -226,7 +245,11 @@ impl IntegrationAdapter for GitLabAdapter {
         }
 
         if !status.is_success() {
-            log::error!("GitLab connection test failed ({}): {}", status, response_text);
+            log::error!(
+                "GitLab connection test failed ({}): {}",
+                status,
+                response_text
+            );
             return Err(crate::integrations::errors::status_to_error(
                 status.as_u16(),
                 Some(response_text),
@@ -239,7 +262,7 @@ impl IntegrationAdapter for GitLabAdapter {
             log::error!("Response body (first 500 chars): {}", 
                 response_text.chars().take(500).collect::<String>());
             log::error!("Full URL used: {}", url);
-            
+
             IntegrationError::ConfigError {
                 message: format!("Failed to parse response: error decoding response body: {}. Please verify your base URL and API endpoint are correct.", e),
             }
@@ -268,10 +291,8 @@ mod tests {
 
     #[test]
     fn test_api_url() {
-        let adapter = GitLabAdapter::new(
-            "https://gitlab.com".to_string(),
-            "test-token".to_string(),
-        );
+        let adapter =
+            GitLabAdapter::new("https://gitlab.com".to_string(), "test-token".to_string());
         assert_eq!(
             adapter.api_url("/projects"),
             "https://gitlab.com/api/v4/projects"
@@ -280,14 +301,11 @@ mod tests {
 
     #[test]
     fn test_api_url_trailing_slash() {
-        let adapter = GitLabAdapter::new(
-            "https://gitlab.com/".to_string(),
-            "test-token".to_string(),
-        );
+        let adapter =
+            GitLabAdapter::new("https://gitlab.com/".to_string(), "test-token".to_string());
         assert_eq!(
             adapter.api_url("/projects"),
             "https://gitlab.com/api/v4/projects"
         );
     }
 }
-

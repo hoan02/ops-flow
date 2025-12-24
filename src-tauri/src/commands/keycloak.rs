@@ -92,4 +92,3 @@ pub async fn fetch_keycloak_clients(
         .await
         .map_err(|e| format!("Failed to fetch clients: {}", e))
 }
-

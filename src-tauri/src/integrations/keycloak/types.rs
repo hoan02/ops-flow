@@ -22,4 +22,3 @@ pub struct KeycloakClient {
     /// Whether the client is enabled
     pub enabled: bool,
 }
-

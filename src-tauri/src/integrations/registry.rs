@@ -12,12 +12,14 @@ use tauri::AppHandle;
 ///
 /// Note: Currently not used for caching due to trait object limitations.
 /// Future improvement: Use Arc<dyn IntegrationAdapter> for proper caching.
+#[allow(dead_code)]
 struct RegistryState {
     /// Placeholder for future caching implementation
     _phantom: std::marker::PhantomData<()>,
 }
 
 impl RegistryState {
+    #[allow(dead_code)]
     fn new() -> Self {
         Self {
             _phantom: std::marker::PhantomData,
@@ -26,9 +28,11 @@ impl RegistryState {
 }
 
 /// Global registry instance (thread-safe)
+#[allow(dead_code)]
 static REGISTRY: Mutex<Option<Arc<Mutex<RegistryState>>>> = Mutex::new(None);
 
 /// Initialize the registry (called once at startup).
+#[allow(dead_code)]
 fn init_registry() -> Arc<Mutex<RegistryState>> {
     let mut registry = REGISTRY.lock().unwrap();
     if let Some(ref existing) = *registry {
@@ -41,9 +45,10 @@ fn init_registry() -> Arc<Mutex<RegistryState>> {
 }
 
 /// Gets the registry state.
+#[allow(dead_code)]
 fn get_registry() -> Arc<Mutex<RegistryState>> {
     let registry = REGISTRY.lock().unwrap();
-    registry.clone().unwrap_or_else(|| init_registry())
+    registry.clone().unwrap_or_else(init_registry)
 }
 
 /// Loads credentials for an integration from the OS keyring.
@@ -70,7 +75,10 @@ pub async fn load_credentials(
     // Load from keyring using existing command
     match credentials::get_integration_credentials(app.clone(), credentials_id.clone()).await {
         Ok(Some(creds)) => {
-            log::info!("Successfully loaded credentials for integration: {}", integration.id);
+            log::info!(
+                "Successfully loaded credentials for integration: {}",
+                integration.id
+            );
             Ok(creds)
         }
         Ok(None) => {
@@ -83,7 +91,11 @@ pub async fn load_credentials(
             })
         }
         Err(e) => {
-            log::error!("Failed to load credentials for integration {}: {}", integration.id, e);
+            log::error!(
+                "Failed to load credentials for integration {}: {}",
+                integration.id,
+                e
+            );
             Err(IntegrationError::ConfigError {
                 message: format!("Failed to load credentials: {e}"),
             })
@@ -107,6 +119,7 @@ pub async fn load_credentials(
 /// # Returns
 /// * `Ok(adapter)` - Adapter instance
 /// * `Err(IntegrationError)` - Failed to create adapter
+#[allow(dead_code)]
 pub async fn get_adapter(
     app: &AppHandle,
     integration: &Integration,
@@ -128,6 +141,7 @@ pub async fn get_adapter(
 ///
 /// Note: Currently a no-op as caching is not yet implemented.
 /// Future improvement: Clear cached adapters when implemented.
+#[allow(dead_code)]
 pub fn clear_cache() {
     log::debug!("Clearing adapter cache (no-op: caching not yet implemented)");
     // Future: Clear cached adapters when caching is implemented
@@ -141,7 +155,7 @@ mod tests {
     fn test_init_registry() {
         let registry1 = init_registry();
         let registry2 = init_registry();
-        
+
         // Should return the same instance
         assert!(Arc::ptr_eq(&registry1, &registry2));
     }
@@ -152,4 +166,3 @@ mod tests {
         clear_cache();
     }
 }
-

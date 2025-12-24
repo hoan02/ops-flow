@@ -3,9 +3,9 @@
 //! Handles loading and saving configuration files with atomic writes.
 //! Config files are stored in YAML format for human readability.
 
+use crate::types::{Environment, Integration, Mapping, Project};
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
-use crate::types::{Environment, Integration, Mapping, Project};
 
 /// Gets the path to the config directory.
 fn get_config_dir(app: &AppHandle) -> Result<PathBuf, String> {
@@ -119,7 +119,10 @@ pub async fn load_environments(app: AppHandle) -> Result<Vec<Environment>, Strin
 /// Saves all environments to disk.
 #[tauri::command]
 #[specta::specta]
-pub async fn save_environments(app: AppHandle, environments: Vec<Environment>) -> Result<(), String> {
+pub async fn save_environments(
+    app: AppHandle,
+    environments: Vec<Environment>,
+) -> Result<(), String> {
     log::debug!("Saving {} environments to disk", environments.len());
     let config_dir = get_config_dir(&app)?;
     let environments_path = config_dir.join("environments.yaml");
@@ -143,7 +146,10 @@ pub async fn load_integrations(app: AppHandle) -> Result<Vec<Integration>, Strin
 /// Saves all integrations to disk.
 #[tauri::command]
 #[specta::specta]
-pub async fn save_integrations(app: AppHandle, integrations: Vec<Integration>) -> Result<(), String> {
+pub async fn save_integrations(
+    app: AppHandle,
+    integrations: Vec<Integration>,
+) -> Result<(), String> {
     log::debug!("Saving {} integrations to disk", integrations.len());
     let config_dir = get_config_dir(&app)?;
     let integrations_path = config_dir.join("integrations.yaml");
@@ -159,10 +165,10 @@ pub async fn test_integration_connection(
 ) -> Result<bool, String> {
     log::debug!("Testing connection for integration: {}", integration_id);
 
-    use crate::integrations::registry::load_credentials;
     use crate::integrations::create_adapter;
-    use crate::types::IntegrationType;
     use crate::integrations::errors::IntegrationError;
+    use crate::integrations::registry::load_credentials;
+    use crate::types::IntegrationType;
 
     // Load integration
     let integrations = load_integrations(app.clone()).await?;
@@ -173,7 +179,7 @@ pub async fn test_integration_connection(
 
     // Special handling for Kubernetes (async adapter creation)
     if integration.integration_type == IntegrationType::Kubernetes {
-        use crate::integrations::{IntegrationAdapter, kubernetes::KubernetesAdapter};
+        use crate::integrations::{kubernetes::KubernetesAdapter, IntegrationAdapter};
         let credentials = load_credentials(&app, &integration)
             .await
             .map_err(|e| format!("Failed to load credentials: {}", e))?;
@@ -207,7 +213,10 @@ pub async fn test_integration_connection(
 
         let result: Result<(), IntegrationError> = adapter.test_connection().await;
         result.map_err(|e| format!("Connection test failed: {}", e))?;
-        log::info!("Successfully tested connection for integration: {}", integration_id);
+        log::info!(
+            "Successfully tested connection for integration: {}",
+            integration_id
+        );
         return Ok(true);
     }
 
@@ -224,7 +233,10 @@ pub async fn test_integration_connection(
         .await
         .map_err(|e| format!("Connection test failed: {}", e))?;
 
-    log::info!("Successfully tested connection for integration: {}", integration_id);
+    log::info!(
+        "Successfully tested connection for integration: {}",
+        integration_id
+    );
     Ok(true)
 }
 
@@ -329,4 +341,3 @@ mod tests {
         assert_eq!(mappings[0].id, mapping.id);
     }
 }
-

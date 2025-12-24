@@ -149,10 +149,7 @@ impl SonarQubeAdapter {
         let mut technical_debt = None;
 
         for measure in measures {
-            let metric = measure
-                .get("metric")
-                .and_then(|m| m.as_str())
-                .unwrap_or("");
+            let metric = measure.get("metric").and_then(|m| m.as_str()).unwrap_or("");
 
             let value = measure.get("value").and_then(|v| v.as_str());
 
@@ -247,4 +244,3 @@ mod tests {
         );
     }
 }
-

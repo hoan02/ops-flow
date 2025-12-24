@@ -56,4 +56,3 @@ pub struct K8sServicePort {
     /// Protocol (e.g., "TCP", "UDP")
     pub protocol: String,
 }
-

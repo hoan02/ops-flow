@@ -147,7 +147,10 @@ impl JenkinsAdapter {
     }
 
     /// Fetches builds for a specific job.
-    pub async fn fetch_builds(&self, job_name: &str) -> Result<Vec<JenkinsBuild>, IntegrationError> {
+    pub async fn fetch_builds(
+        &self,
+        job_name: &str,
+    ) -> Result<Vec<JenkinsBuild>, IntegrationError> {
         // URL encode job name
         let encoded_job_name = urlencoding::encode(job_name);
         let endpoint = format!(
@@ -374,4 +377,3 @@ mod tests {
         );
     }
 }
-

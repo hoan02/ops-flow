@@ -41,4 +41,3 @@ pub struct JenkinsBuild {
     /// Build duration in milliseconds (None if still building, as string to avoid i64 BigInt issues)
     pub duration: Option<String>,
 }
-

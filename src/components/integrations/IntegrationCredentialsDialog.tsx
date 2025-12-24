@@ -13,8 +13,15 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { useIntegrationCredentials, useSaveIntegrationCredentials } from '@/services/integrations'
-import type { Integration, IntegrationType, IntegrationCredentials } from '@/lib/tauri-bindings'
+import {
+  useIntegrationCredentials,
+  useSaveIntegrationCredentials,
+} from '@/services/integrations'
+import type {
+  Integration,
+  IntegrationType,
+  IntegrationCredentials,
+} from '@/lib/tauri-bindings'
 
 interface IntegrationCredentialsDialogProps {
   open: boolean
@@ -30,7 +37,9 @@ export function IntegrationCredentialsDialog({
   onClose,
 }: IntegrationCredentialsDialogProps) {
   const { t } = useTranslation()
-  const { data: existingCredentials } = useIntegrationCredentials(integration.id)
+  const { data: existingCredentials } = useIntegrationCredentials(
+    integration.id
+  )
   const saveCredentials = useSaveIntegrationCredentials()
 
   // Determine if this integration needs auth method selection
@@ -56,15 +65,22 @@ export function IntegrationCredentialsDialog({
   }
 
   // Initialize state from props - component resets when key changes
-  const [authMethod, setAuthMethod] = useState<'username-password' | 'token'>(() => 
-    needsAuthMethodSelection(integration.type) ? getInitialAuthMethod() : 'username-password'
+  const [authMethod, setAuthMethod] = useState<'username-password' | 'token'>(
+    () =>
+      needsAuthMethodSelection(integration.type)
+        ? getInitialAuthMethod()
+        : 'username-password'
   )
   const [token, setToken] = useState(() => existingCredentials?.token ?? '')
-  const [username, setUsername] = useState(() => existingCredentials?.username ?? '')
-  const [password, setPassword] = useState(() => existingCredentials?.password ?? '')
+  const [username, setUsername] = useState(
+    () => existingCredentials?.username ?? ''
+  )
+  const [password, setPassword] = useState(
+    () => existingCredentials?.password ?? ''
+  )
   const [showPassword] = useState(false)
-  const [kubeconfigPath, setKubeconfigPath] = useState(() => 
-    existingCredentials?.custom?.['kubeconfig_path'] ?? ''
+  const [kubeconfigPath, setKubeconfigPath] = useState(
+    () => existingCredentials?.custom?.['kubeconfig_path'] ?? ''
   )
 
   // Reset state when credentials, integration, or open changes using key prop
@@ -124,8 +140,7 @@ export function IntegrationCredentialsDialog({
       // - Jenkins: always needs username (with either password or token)
       // - Keycloak: always needs username
       username:
-        integration.type === 'jenkins' ||
-        integration.type === 'keycloak'
+        integration.type === 'jenkins' || integration.type === 'keycloak'
           ? username.trim() || null
           : null,
       // Password: when username-password method is selected or for Keycloak
@@ -159,7 +174,9 @@ export function IntegrationCredentialsDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {t('integration.credentials.dialog.title', { name: integration.name })}
+            {t('integration.credentials.dialog.title', {
+              name: integration.name,
+            })}
           </DialogTitle>
           <DialogDescription>
             {t('integration.credentials.dialog.description')}
@@ -174,10 +191,15 @@ export function IntegrationCredentialsDialog({
                 <Label>{t('integration.credentials.authMethod')}</Label>
                 <RadioGroup
                   value={authMethod || 'username-password'}
-                  onValueChange={(value) => setAuthMethod(value as 'username-password' | 'token')}
+                  onValueChange={value =>
+                    setAuthMethod(value as 'username-password' | 'token')
+                  }
                 >
                   <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="username-password" id="auth-username-password" />
+                    <RadioGroupItem
+                      value="username-password"
+                      id="auth-username-password"
+                    />
                     <Label
                       htmlFor="auth-username-password"
                       className="font-normal cursor-pointer"
@@ -242,7 +264,9 @@ export function IntegrationCredentialsDialog({
                   id="credentials-kubeconfig-path"
                   value={kubeconfigPath}
                   onChange={e => setKubeconfigPath(e.target.value)}
-                  placeholder={t('integration.credentials.kubeconfigPathPlaceholder')}
+                  placeholder={t(
+                    'integration.credentials.kubeconfigPathPlaceholder'
+                  )}
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('integration.credentials.kubeconfigPathDescription')}
@@ -287,4 +311,3 @@ export function IntegrationCredentialsDialog({
     </Dialog>
   )
 }
-

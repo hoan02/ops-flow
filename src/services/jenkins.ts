@@ -10,11 +10,7 @@ export const jenkinsQueryKeys = {
     [...jenkinsQueryKeys.all, 'jobs', integrationId] as const,
   builds: (integrationId: string, jobName: string) =>
     [...jenkinsQueryKeys.all, 'builds', integrationId, jobName] as const,
-  buildDetails: (
-    integrationId: string,
-    jobName: string,
-    buildNumber: number
-  ) =>
+  buildDetails: (integrationId: string, jobName: string, buildNumber: number) =>
     [
       ...jenkinsQueryKeys.all,
       'buildDetails',
@@ -54,10 +50,7 @@ export function useJenkinsJobs(integrationId: string) {
  * Fetches Jenkins builds for a given job.
  * Cache TTL: 30-60 seconds for real-time data.
  */
-export function useJenkinsBuilds(
-  integrationId: string,
-  jobName: string
-) {
+export function useJenkinsBuilds(integrationId: string, jobName: string) {
   return useQuery({
     queryKey: jenkinsQueryKeys.builds(integrationId, jobName),
     queryFn: async () => {
@@ -186,4 +179,3 @@ export function useTriggerJenkinsBuild() {
     },
   })
 }
-

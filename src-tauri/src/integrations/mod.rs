@@ -38,12 +38,15 @@ pub trait IntegrationAdapter: Send + Sync {
     async fn test_connection(&self) -> Result<(), IntegrationError>;
 
     /// Returns the human-readable name of this integration.
+    #[allow(dead_code)]
     fn get_name(&self) -> &str;
 
     /// Returns the type of integration this adapter handles.
+    #[allow(dead_code)]
     fn get_integration_type(&self) -> IntegrationType;
 
     /// Returns the base URL of the integration service.
+    #[allow(dead_code)]
     fn get_base_url(&self) -> &str;
 }
 
@@ -88,7 +91,7 @@ pub fn create_adapter(
             let password = credentials
                 .password
                 .as_ref()
-                .or_else(|| credentials.token.as_ref())
+                .or(credentials.token.as_ref())
                 .ok_or_else(|| IntegrationError::ConfigError {
                     message: "Jenkins integration requires a password or token".to_string(),
                 })?;
@@ -126,7 +129,7 @@ pub fn create_adapter(
             let password = credentials
                 .password
                 .as_ref()
-                .or_else(|| credentials.token.as_ref())
+                .or(credentials.token.as_ref())
                 .ok_or_else(|| IntegrationError::ConfigError {
                     message: "Keycloak integration requires a password or token".to_string(),
                 })?;

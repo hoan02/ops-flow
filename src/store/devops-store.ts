@@ -19,11 +19,7 @@ export const useDevOpsStore = create<DevOpsState>()(
       selectedIntegrationId: null,
 
       setSelectedProjectId: id =>
-        set(
-          { selectedProjectId: id },
-          undefined,
-          'setSelectedProjectId'
-        ),
+        set({ selectedProjectId: id }, undefined, 'setSelectedProjectId'),
 
       setSelectedEnvironmentId: id =>
         set(
@@ -44,4 +40,3 @@ export const useDevOpsStore = create<DevOpsState>()(
     }
   )
 )
-

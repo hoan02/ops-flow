@@ -26,12 +26,14 @@ Kế hoạch triển khai DevOps Center desktop application sử dụng Tauri. �
 ## Task Breakdown
 
 ### Phase 1: Foundation (Tasks 1-2)
+
 - **Task 1**: Project Structure and Config Management
 - **Task 2**: Integration Adapters Foundation
 
 **Mục tiêu:** Thiết lập cấu trúc cơ bản, config management, và foundation cho integrations.
 
 ### Phase 2: Integrations (Tasks 3-6)
+
 - **Task 3**: GitLab Integration
 - **Task 4**: Jenkins Integration
 - **Task 5**: Kubernetes Integration
@@ -40,6 +42,7 @@ Kế hoạch triển khai DevOps Center desktop application sử dụng Tauri. �
 **Mục tiêu:** Implement tất cả integration adapters để fetch data từ external systems.
 
 ### Phase 3: UI & Visualization (Tasks 7-9)
+
 - **Task 7**: Left Sidebar UI
 - **Task 8**: React Flow Canvas
 - **Task 9**: Mapping System
@@ -47,12 +50,14 @@ Kế hoạch triển khai DevOps Center desktop application sử dụng Tauri. �
 **Mục tiêu:** Xây dựng UI để visualize và quản lý configs.
 
 ### Phase 4: Real-time & Actions (Tasks 10-11)
+
 - **Task 10**: Real-time Status Polling
 - **Task 11**: Light Actions
 
 **Mục tiêu:** Real-time updates và trigger operations.
 
 ### Phase 5: Polish (Tasks 12-13)
+
 - **Task 12**: UI Polish and i18n
 - **Task 13**: Testing and Documentation
 
@@ -70,6 +75,7 @@ Kế hoạch triển khai DevOps Center desktop application sử dụng Tauri. �
 ## Dependencies
 
 ### Rust Crates cần thêm:
+
 - `reqwest` - HTTP client
 - `keyring` - OS keychain
 - `k8s-openapi` + `kube` - Kubernetes client
@@ -77,6 +83,7 @@ Kế hoạch triển khai DevOps Center desktop application sử dụng Tauri. �
 - `serde_json` - JSON (đã có)
 
 ### npm Packages cần thêm:
+
 - `@xyflow/react` - React Flow
 - `yaml` - YAML parsing (nếu cần ở frontend)
 
@@ -146,4 +153,3 @@ src/
 ## Future Enhancements
 
 Xem `task-x-future-enhancements.md` cho các tính năng có thể thêm sau (SQLite history, WebSocket, alerting, etc.)
-

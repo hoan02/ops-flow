@@ -1,7 +1,10 @@
 use tauri_specta::{collect_commands, Builder};
 
 pub fn generate_bindings() -> Builder<tauri::Wry> {
-    use crate::commands::{config, credentials, gitlab, jenkins, keycloak, kubernetes, notifications, preferences, quick_pane, recovery, sonarqube};
+    use crate::commands::{
+        config, credentials, gitlab, jenkins, keycloak, kubernetes, notifications, preferences,
+        quick_pane, recovery, sonarqube,
+    };
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
         preferences::greet,

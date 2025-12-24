@@ -11,11 +11,7 @@ export const k8sQueryKeys = {
     [...k8sQueryKeys.all, 'pods', integrationId, namespace] as const,
   services: (integrationId: string, namespace: string) =>
     [...k8sQueryKeys.all, 'services', integrationId, namespace] as const,
-  podDetails: (
-    integrationId: string,
-    namespace: string,
-    podName: string
-  ) =>
+  podDetails: (integrationId: string, namespace: string, podName: string) =>
     [
       ...k8sQueryKeys.all,
       'podDetails',
@@ -68,9 +64,7 @@ export function useK8sPods(integrationId: string, namespace: string) {
         integrationId,
         namespace,
       })
-      return unwrapResult(
-        await commands.fetchK8sPods(integrationId, namespace)
-      )
+      return unwrapResult(await commands.fetchK8sPods(integrationId, namespace))
     },
     enabled: !!integrationId && !!namespace,
     staleTime: 1000 * 30, // 30 seconds - short TTL for real-time data
@@ -199,7 +193,7 @@ export function useInvalidateK8sQueries() {
     invalidateAll: (integrationId: string) => {
       queryClient.invalidateQueries({
         queryKey: k8sQueryKeys.all,
-        predicate: (query) => {
+        predicate: query => {
           const key = query.queryKey
           return (
             Array.isArray(key) &&
@@ -212,4 +206,3 @@ export function useInvalidateK8sQueries() {
     },
   }
 }
-

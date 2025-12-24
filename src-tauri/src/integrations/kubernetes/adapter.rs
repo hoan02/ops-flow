@@ -18,6 +18,7 @@ pub struct KubernetesAdapter {
     /// Kubernetes client
     client: Client,
     /// Kubeconfig path used for this adapter
+    #[allow(dead_code)] // Used in get_base_url() trait method
     kubeconfig_path: PathBuf,
 }
 
@@ -31,15 +32,22 @@ impl KubernetesAdapter {
     /// * `Ok(adapter)` - Adapter created successfully
     /// * `Err(IntegrationError)` - Failed to create adapter
     pub async fn new(kubeconfig_path: String) -> Result<Self, IntegrationError> {
-        log::debug!("Creating Kubernetes adapter with kubeconfig: {}", kubeconfig_path);
+        log::debug!(
+            "Creating Kubernetes adapter with kubeconfig: {}",
+            kubeconfig_path
+        );
 
         // Expand home directory if path starts with ~
-        let expanded_path = if kubeconfig_path.starts_with('~') {
-            let home = dirs::home_dir()
-                .ok_or_else(|| IntegrationError::ConfigError {
-                    message: "Failed to determine home directory".to_string(),
-                })?;
-            home.join(kubeconfig_path.strip_prefix("~/").unwrap_or(&kubeconfig_path[1..]))
+        let expanded_path = if let Some(stripped) = kubeconfig_path.strip_prefix('~') {
+            let home = dirs::home_dir().ok_or_else(|| IntegrationError::ConfigError {
+                message: "Failed to determine home directory".to_string(),
+            })?;
+            home.join(
+                stripped
+                    .strip_prefix('/')
+                    .or(stripped.strip_prefix("\\"))
+                    .unwrap_or(stripped),
+            )
         } else {
             PathBuf::from(kubeconfig_path)
         };
@@ -54,23 +62,20 @@ impl KubernetesAdapter {
         // Load kubeconfig and create client
         // Set KUBECONFIG environment variable temporarily for kube crate
         std::env::set_var("KUBECONFIG", &expanded_path);
-        
-        let config = Config::infer()
-            .await
-            .map_err(|e| {
-                std::env::remove_var("KUBECONFIG");
-                IntegrationError::ConfigError {
-                    message: format!("Failed to load kubeconfig: {}", e),
-                }
-            })?;
 
-        let client = Client::try_from(config)
-            .map_err(|e| {
-                std::env::remove_var("KUBECONFIG");
-                IntegrationError::ConfigError {
-                    message: format!("Failed to create Kubernetes client: {}", e),
-                }
-            })?;
+        let config = Config::infer().await.map_err(|e| {
+            std::env::remove_var("KUBECONFIG");
+            IntegrationError::ConfigError {
+                message: format!("Failed to load kubeconfig: {}", e),
+            }
+        })?;
+
+        let client = Client::try_from(config).map_err(|e| {
+            std::env::remove_var("KUBECONFIG");
+            IntegrationError::ConfigError {
+                message: format!("Failed to create Kubernetes client: {}", e),
+            }
+        })?;
 
         // Clear the environment variable after client creation
         std::env::remove_var("KUBECONFIG");
@@ -87,15 +92,12 @@ impl KubernetesAdapter {
 
         let api: Api<Namespace> = Api::all(self.client.clone());
 
-        let namespaces = api
-            .list(&Default::default())
-            .await
-            .map_err(|e| {
-                log::error!("Failed to list namespaces: {}", e);
-                IntegrationError::NetworkError {
-                    message: format!("Failed to list namespaces: {}", e),
-                }
-            })?;
+        let namespaces = api.list(&Default::default()).await.map_err(|e| {
+            log::error!("Failed to list namespaces: {}", e);
+            IntegrationError::NetworkError {
+                message: format!("Failed to list namespaces: {}", e),
+            }
+        })?;
 
         let mut result = Vec::new();
         for ns in namespaces {
@@ -130,15 +132,12 @@ impl KubernetesAdapter {
 
         let api: Api<Pod> = Api::namespaced(self.client.clone(), namespace);
 
-        let pods = api
-            .list(&Default::default())
-            .await
-            .map_err(|e| {
-                log::error!("Failed to list pods in namespace {}: {}", namespace, e);
-                IntegrationError::NetworkError {
-                    message: format!("Failed to list pods: {}", e),
-                }
-            })?;
+        let pods = api.list(&Default::default()).await.map_err(|e| {
+            log::error!("Failed to list pods in namespace {}: {}", namespace, e);
+            IntegrationError::NetworkError {
+                message: format!("Failed to list pods: {}", e),
+            }
+        })?;
 
         let mut result = Vec::new();
         for pod in pods {
@@ -179,19 +178,11 @@ impl KubernetesAdapter {
             let containers: Vec<String> = pod
                 .spec
                 .as_ref()
-                .map(|spec| {
-                    spec.containers
-                        .iter()
-                        .map(|c| c.name.clone())
-                        .collect()
-                })
+                .map(|spec| spec.containers.iter().map(|c| c.name.clone()).collect())
                 .unwrap_or_default();
 
             // Extract node name
-            let node = pod
-                .spec
-                .as_ref()
-                .and_then(|spec| spec.node_name.clone());
+            let node = pod.spec.as_ref().and_then(|spec| spec.node_name.clone());
 
             result.push(K8sPod {
                 name,
@@ -206,20 +197,20 @@ impl KubernetesAdapter {
     }
 
     /// Fetches all services in a specific namespace.
-    pub async fn fetch_services(&self, namespace: &str) -> Result<Vec<K8sService>, IntegrationError> {
+    pub async fn fetch_services(
+        &self,
+        namespace: &str,
+    ) -> Result<Vec<K8sService>, IntegrationError> {
         log::debug!("Fetching Kubernetes services in namespace: {}", namespace);
 
         let api: Api<Service> = Api::namespaced(self.client.clone(), namespace);
 
-        let services = api
-            .list(&Default::default())
-            .await
-            .map_err(|e| {
-                log::error!("Failed to list services in namespace {}: {}", namespace, e);
-                IntegrationError::NetworkError {
-                    message: format!("Failed to list services: {}", e),
-                }
-            })?;
+        let services = api.list(&Default::default()).await.map_err(|e| {
+            log::error!("Failed to list services in namespace {}: {}", namespace, e);
+            IntegrationError::NetworkError {
+                message: format!("Failed to list services: {}", e),
+            }
+        })?;
 
         let mut result = Vec::new();
         for service in services {
@@ -250,12 +241,12 @@ impl KubernetesAdapter {
                                 .map(|p| K8sServicePort {
                                     name: p.name.clone(),
                                     port: p.port as u32,
-                                    target_port: p.target_port.as_ref().and_then(|tp| match tp {
+                                    target_port: p.target_port.as_ref().map(|tp| match tp {
                                         k8s_openapi::apimachinery::pkg::util::intstr::IntOrString::Int(i) => {
-                                            Some(i.to_string())
+                                            i.to_string()
                                         }
                                         k8s_openapi::apimachinery::pkg::util::intstr::IntOrString::String(s) => {
-                                            Some(s.clone())
+                                            s.clone()
                                         }
                                     }),
                                     protocol: p.protocol.as_ref().cloned().unwrap_or_else(|| "TCP".to_string()),
@@ -300,24 +291,16 @@ impl KubernetesAdapter {
 
         let api: Api<Pod> = Api::namespaced(self.client.clone(), namespace);
 
-        let pod = api
-            .get(pod_name)
-            .await
-            .map_err(|e| {
-                log::error!(
-                    "Failed to get pod {}/{}: {}",
-                    namespace,
-                    pod_name,
-                    e
-                );
-                if e.to_string().contains("NotFound") {
-                    IntegrationError::NotFound
-                } else {
-                    IntegrationError::NetworkError {
-                        message: format!("Failed to get pod: {}", e),
-                    }
+        let pod = api.get(pod_name).await.map_err(|e| {
+            log::error!("Failed to get pod {}/{}: {}", namespace, pod_name, e);
+            if e.to_string().contains("NotFound") {
+                IntegrationError::NotFound
+            } else {
+                IntegrationError::NetworkError {
+                    message: format!("Failed to get pod: {}", e),
                 }
-            })?;
+            }
+        })?;
 
         let name = pod.metadata.name.clone().unwrap_or_default();
         let pod_namespace = pod
@@ -354,19 +337,11 @@ impl KubernetesAdapter {
         let containers: Vec<String> = pod
             .spec
             .as_ref()
-            .map(|spec| {
-                spec.containers
-                    .iter()
-                    .map(|c| c.name.clone())
-                    .collect()
-            })
+            .map(|spec| spec.containers.iter().map(|c| c.name.clone()).collect())
             .unwrap_or_default();
 
         // Extract node name
-        let node = pod
-            .spec
-            .as_ref()
-            .and_then(|spec| spec.node_name.clone());
+        let node = pod.spec.as_ref().and_then(|spec| spec.node_name.clone());
 
         Ok(K8sPod {
             name,
@@ -412,4 +387,3 @@ mod tests {
         assert!(path.starts_with('~'));
     }
 }
-

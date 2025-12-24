@@ -39,4 +39,3 @@ pub struct GitLabWebhook {
     /// List of events this webhook subscribes to
     pub events: Vec<String>,
 }
-

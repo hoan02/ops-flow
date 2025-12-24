@@ -28,4 +28,3 @@ pub struct SonarQubeMetrics {
     /// Technical debt in minutes (as string to avoid i64 BigInt issues)
     pub technical_debt: Option<String>,
 }
-

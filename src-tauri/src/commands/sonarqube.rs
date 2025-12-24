@@ -2,8 +2,8 @@
 //!
 //! Provides Tauri commands for interacting with SonarQube API through the adapter.
 
-use crate::integrations::sonarqube::{SonarQubeAdapter, SonarQubeMetrics, SonarQubeProject};
 use crate::integrations::registry::load_credentials;
+use crate::integrations::sonarqube::{SonarQubeAdapter, SonarQubeMetrics, SonarQubeProject};
 use crate::types::Integration;
 use tauri::AppHandle;
 
@@ -82,4 +82,3 @@ pub async fn fetch_sonarqube_metrics(
         .await
         .map_err(|e| format!("Failed to fetch metrics: {}", e))
 }
-

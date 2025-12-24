@@ -44,10 +44,7 @@ export function useGitLabProjects(integrationId: string) {
  * Fetches GitLab pipelines for a given project.
  * Cache TTL: 30-60 seconds for real-time data.
  */
-export function useGitLabPipelines(
-  integrationId: string,
-  projectId: number
-) {
+export function useGitLabPipelines(integrationId: string, projectId: number) {
   return useQuery({
     queryKey: gitlabQueryKeys.pipelines(integrationId, projectId),
     queryFn: async () => {
@@ -76,10 +73,7 @@ export function useGitLabPipelines(
  * Fetches GitLab webhooks for a given project.
  * Cache TTL: 60 seconds (webhooks don't change often).
  */
-export function useGitLabWebhooks(
-  integrationId: string,
-  projectId: number
-) {
+export function useGitLabWebhooks(integrationId: string, projectId: number) {
   return useQuery({
     queryKey: gitlabQueryKeys.webhooks(integrationId, projectId),
     queryFn: async () => {
@@ -166,4 +160,3 @@ export function useTriggerGitLabPipeline() {
     },
   })
 }
-

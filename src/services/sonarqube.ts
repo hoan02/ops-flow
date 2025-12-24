@@ -41,10 +41,7 @@ export function useSonarQubeProjects(integrationId: string) {
  * Fetches SonarQube metrics for a given project.
  * Cache TTL: 5-10 minutes (metrics don't change often).
  */
-export function useSonarQubeMetrics(
-  integrationId: string,
-  projectKey: string
-) {
+export function useSonarQubeMetrics(integrationId: string, projectKey: string) {
   return useQuery({
     queryKey: sonarqubeQueryKeys.metrics(integrationId, projectKey),
     queryFn: async () => {
@@ -68,4 +65,3 @@ export function useSonarQubeMetrics(
     },
   })
 }
-

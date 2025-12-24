@@ -3,9 +3,9 @@
 //! Credentials are stored securely in the OS keychain and are never
 //! written to config files.
 
+use crate::types::IntegrationCredentials;
 use keyring::Entry;
 use tauri::AppHandle;
-use crate::types::IntegrationCredentials;
 
 /// Gets the keyring entry for an integration's credentials.
 fn get_keyring_entry(integration_id: &str) -> Result<Entry, String> {
@@ -55,10 +55,11 @@ pub async fn get_integration_credentials(
 
     match entry.get_password() {
         Ok(password_json) => {
-            let credentials: IntegrationCredentials = serde_json::from_str(&password_json).map_err(|e| {
-                log::error!("Failed to parse credentials from keyring: {e}");
-                format!("Failed to parse credentials: {e}")
-            })?;
+            let credentials: IntegrationCredentials = serde_json::from_str(&password_json)
+                .map_err(|e| {
+                    log::error!("Failed to parse credentials from keyring: {e}");
+                    format!("Failed to parse credentials: {e}")
+                })?;
             log::info!("Successfully loaded credentials for integration: {integration_id}");
             Ok(Some(credentials))
         }
@@ -91,4 +92,3 @@ pub async fn delete_integration_credentials(
     log::info!("Successfully deleted credentials for integration: {integration_id}");
     Ok(())
 }
-

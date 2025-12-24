@@ -42,7 +42,7 @@ export function useMappingsByProject(projectId: string) {
 
   return {
     data:
-      allMappings?.filter((mapping) => mapping.project_id === projectId) ?? [],
+      allMappings?.filter(mapping => mapping.project_id === projectId) ?? [],
     isLoading: !allMappings,
   }
 }
@@ -53,7 +53,7 @@ export function useMappingsByEnvironment(environmentId: string) {
   return {
     data:
       allMappings?.filter(
-        (mapping) => mapping.environment_id === environmentId
+        mapping => mapping.environment_id === environmentId
       ) ?? [],
     isLoading: !allMappings,
   }
@@ -83,19 +83,17 @@ export function useSaveMappings() {
       queryClient.setQueryData(mappingsQueryKeys.mappings(), mappings)
       // Invalidate project and environment-specific queries
       const projectIds = new Set(
-        mappings.map((m) => m.project_id).filter((id): id is string => !!id)
+        mappings.map(m => m.project_id).filter((id): id is string => !!id)
       )
       const environmentIds = new Set(
-        mappings
-          .map((m) => m.environment_id)
-          .filter((id): id is string => !!id)
+        mappings.map(m => m.environment_id).filter((id): id is string => !!id)
       )
-      projectIds.forEach((projectId) => {
+      projectIds.forEach(projectId => {
         queryClient.invalidateQueries({
           queryKey: mappingsQueryKeys.byProject(projectId),
         })
       })
-      environmentIds.forEach((environmentId) => {
+      environmentIds.forEach(environmentId => {
         queryClient.invalidateQueries({
           queryKey: mappingsQueryKeys.byEnvironment(environmentId),
         })
@@ -105,4 +103,3 @@ export function useSaveMappings() {
     },
   })
 }
-

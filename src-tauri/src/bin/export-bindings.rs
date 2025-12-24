@@ -8,4 +8,3 @@ fn main() {
     tauri_app_lib::bindings::export_ts_bindings();
     println!("✓ TypeScript bindings exported to ../src/lib/bindings.ts");
 }
-

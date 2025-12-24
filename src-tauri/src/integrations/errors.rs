@@ -58,7 +58,7 @@ impl std::error::Error for IntegrationError {}
 impl From<reqwest::Error> for IntegrationError {
     fn from(err: reqwest::Error) -> Self {
         log::error!("HTTP request error: {err}");
-        
+
         if err.is_timeout() {
             IntegrationError::NetworkError {
                 message: "Request timed out".to_string(),
@@ -161,5 +161,3 @@ mod tests {
         }
     }
 }
-
-

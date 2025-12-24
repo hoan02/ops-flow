@@ -40,20 +40,18 @@ export function EnvironmentItem({
     <div
       className={cn(
         'group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer transition-colors',
-        isSelected
-          ? 'bg-accent text-accent-foreground'
-          : 'hover:bg-accent/50'
+        isSelected ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
       )}
       onClick={handleClick}
     >
       <div className="flex-1 min-w-0">
         <div className="font-medium truncate">{environment.name}</div>
         <div className="text-xs text-muted-foreground truncate">
-          {project?.name && (
-            <span className="mr-2">{project.name}</span>
-          )}
+          {project?.name && <span className="mr-2">{project.name}</span>}
           {environment.namespace && (
-            <span>{t('environment.namespace', { ns: environment.namespace })}</span>
+            <span>
+              {t('environment.namespace', { ns: environment.namespace })}
+            </span>
           )}
         </div>
       </div>
@@ -94,4 +92,3 @@ export function EnvironmentItem({
     </div>
   )
 }
-

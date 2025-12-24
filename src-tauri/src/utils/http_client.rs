@@ -15,6 +15,7 @@ use std::time::Duration;
 /// - Read timeout: 30 seconds
 /// - JSON support enabled
 /// - Rustls TLS backend (no OpenSSL dependency)
+#[allow(dead_code)]
 pub fn create_http_client() -> Result<reqwest::Client, IntegrationError> {
     reqwest::Client::builder()
         .connect_timeout(Duration::from_secs(10))
@@ -40,6 +41,7 @@ pub fn create_http_client() -> Result<reqwest::Client, IntegrationError> {
 /// # Returns
 /// * `Ok(response)` - Successful response
 /// * `Err(IntegrationError)` - Error after all retries exhausted
+#[allow(dead_code)]
 pub async fn execute_with_retry(
     _client: &reqwest::Client,
     request: reqwest::RequestBuilder,
@@ -55,7 +57,7 @@ pub async fn execute_with_retry(
                 match retry_request.send().await {
                     Ok(response) => {
                         let status = response.status();
-                        
+
                         // Don't retry on client errors (4xx) except for network timeouts
                         if status.is_client_error() && status != 408 {
                             return Err(crate::integrations::errors::status_to_error(
@@ -127,9 +129,11 @@ pub async fn execute_with_retry(
     }
 
     // All retries exhausted
-    Err(last_error.unwrap_or_else(|| IntegrationError::NetworkError {
-        message: "Request failed after retries".to_string(),
-    }))
+    Err(
+        last_error.unwrap_or_else(|| IntegrationError::NetworkError {
+            message: "Request failed after retries".to_string(),
+        }),
+    )
 }
 
 #[cfg(test)]
@@ -145,7 +149,7 @@ mod tests {
     #[tokio::test]
     async fn test_http_client_timeout_config() {
         let client = create_http_client().unwrap();
-        
+
         // Test that client has timeout configured by trying a request
         // that should timeout quickly (using a non-routable IP)
         let result = client
@@ -153,9 +157,8 @@ mod tests {
             .timeout(Duration::from_millis(100))
             .send()
             .await;
-        
+
         // Should fail, but not panic
         assert!(result.is_err());
     }
 }
-

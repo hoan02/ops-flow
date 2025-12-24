@@ -67,7 +67,10 @@ pub async fn fetch_k8s_namespaces(
     app: AppHandle,
     integration_id: String,
 ) -> Result<Vec<K8sNamespace>, String> {
-    log::debug!("Fetching Kubernetes namespaces for integration: {}", integration_id);
+    log::debug!(
+        "Fetching Kubernetes namespaces for integration: {}",
+        integration_id
+    );
 
     let integration = get_integration(&app, &integration_id).await?;
     let adapter = create_kubernetes_adapter(&app, &integration).await?;
@@ -148,4 +151,3 @@ pub async fn fetch_k8s_pod_details(
         .await
         .map_err(|e| format!("Failed to fetch pod details: {}", e))
 }
-

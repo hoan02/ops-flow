@@ -52,9 +52,11 @@ export function IntegrationDialog({
   const saveIntegrations = useSaveIntegrations()
 
   const isEditMode = integration !== null
-  
+
   // Initialize state from props - component resets when key changes
-  const [type, setType] = useState<IntegrationType>(() => integration?.type ?? 'gitlab')
+  const [type, setType] = useState<IntegrationType>(
+    () => integration?.type ?? 'gitlab'
+  )
   const [name, setName] = useState(() => integration?.name ?? '')
   const [baseUrl, setBaseUrl] = useState(() => integration?.base_url ?? '')
   const [nameError, setNameError] = useState('')
@@ -254,4 +256,3 @@ export function IntegrationDialog({
     </Dialog>
   )
 }
-

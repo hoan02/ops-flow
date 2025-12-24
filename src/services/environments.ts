@@ -21,7 +21,9 @@ export function useEnvironments() {
 
       if (result.status === 'error') {
         logger.error('Failed to load environments', { error: result.error })
-        toast.error('Failed to load environments', { description: result.error })
+        toast.error('Failed to load environments', {
+          description: result.error,
+        })
         throw new Error(result.error)
       }
 
@@ -39,7 +41,7 @@ export function useEnvironmentsByProject(projectId: string) {
   const { data: allEnvironments } = useEnvironments()
 
   return {
-    data: allEnvironments?.filter((env) => env.project_id === projectId) ?? [],
+    data: allEnvironments?.filter(env => env.project_id === projectId) ?? [],
     isLoading: !allEnvironments,
   }
 }
@@ -76,8 +78,8 @@ export function useSaveEnvironments() {
         environments
       )
       // Invalidate project-specific queries
-      const projectIds = new Set(environments.map((e) => e.project_id))
-      projectIds.forEach((projectId) => {
+      const projectIds = new Set(environments.map(e => e.project_id))
+      projectIds.forEach(projectId => {
         queryClient.invalidateQueries({
           queryKey: environmentsQueryKeys.byProject(projectId),
         })
@@ -87,4 +89,3 @@ export function useSaveEnvironments() {
     },
   })
 }
-

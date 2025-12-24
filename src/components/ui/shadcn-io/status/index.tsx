@@ -1,10 +1,10 @@
-import type { ComponentProps, HTMLAttributes } from 'react';
-import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
+import type { ComponentProps, HTMLAttributes } from 'react'
+import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 export type StatusProps = ComponentProps<typeof Badge> & {
-  status: 'online' | 'offline' | 'maintenance' | 'degraded';
-};
+  status: 'online' | 'offline' | 'maintenance' | 'degraded'
+}
 
 export const Status = ({ className, status, ...props }: StatusProps) => (
   <Badge
@@ -12,9 +12,9 @@ export const Status = ({ className, status, ...props }: StatusProps) => (
     variant="secondary"
     {...props}
   />
-);
+)
 
-export type StatusIndicatorProps = HTMLAttributes<HTMLSpanElement>;
+export type StatusIndicatorProps = HTMLAttributes<HTMLSpanElement>
 
 export const StatusIndicator = ({
   className,
@@ -40,9 +40,9 @@ export const StatusIndicator = ({
       )}
     />
   </span>
-);
+)
 
-export type StatusLabelProps = HTMLAttributes<HTMLSpanElement>;
+export type StatusLabelProps = HTMLAttributes<HTMLSpanElement>
 
 export const StatusLabel = ({
   className,
@@ -59,4 +59,4 @@ export const StatusLabel = ({
       </>
     )}
   </span>
-);
+)

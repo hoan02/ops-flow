@@ -46,7 +46,10 @@ pub async fn fetch_gitlab_projects(
     app: AppHandle,
     integration_id: String,
 ) -> Result<Vec<GitLabProject>, String> {
-    log::debug!("Fetching GitLab projects for integration: {}", integration_id);
+    log::debug!(
+        "Fetching GitLab projects for integration: {}",
+        integration_id
+    );
 
     let integration = get_integration(&app, &integration_id).await?;
     let adapter = create_gitlab_adapter(&app, &integration).await?;
@@ -127,4 +130,3 @@ pub async fn trigger_gitlab_pipeline(
         .await
         .map_err(|e| format!("Failed to trigger pipeline: {}", e))
 }
-

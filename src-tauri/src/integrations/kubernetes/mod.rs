@@ -7,4 +7,3 @@ mod types;
 
 pub use adapter::KubernetesAdapter;
 pub use types::{K8sNamespace, K8sPod, K8sService};
-

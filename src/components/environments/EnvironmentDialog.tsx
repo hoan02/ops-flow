@@ -41,11 +41,13 @@ export function EnvironmentDialog({
   const saveEnvironments = useSaveEnvironments()
 
   const isEditMode = environment !== null
-  
+
   // Initialize state from props - component resets when key changes
   const [name, setName] = useState(() => environment?.name ?? '')
   const [namespace, setNamespace] = useState(() => environment?.namespace ?? '')
-  const [projectId, setProjectId] = useState(() => environment?.project_id ?? '')
+  const [projectId, setProjectId] = useState(
+    () => environment?.project_id ?? ''
+  )
   const [nameError, setNameError] = useState('')
   const [projectIdError, setProjectIdError] = useState('')
 
@@ -162,7 +164,9 @@ export function EnvironmentDialog({
                   className="w-full"
                   aria-invalid={!!projectIdError}
                 >
-                  <SelectValue placeholder={t('environment.form.projectPlaceholder')} />
+                  <SelectValue
+                    placeholder={t('environment.form.projectPlaceholder')}
+                  />
                 </SelectTrigger>
                 <SelectContent>
                   {projects?.map(project => (
@@ -211,4 +215,3 @@ export function EnvironmentDialog({
     </Dialog>
   )
 }
-

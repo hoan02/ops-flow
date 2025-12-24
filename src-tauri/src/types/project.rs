@@ -112,4 +112,3 @@ pub struct IntegrationCredentials {
     #[serde(default)]
     pub custom: std::collections::HashMap<String, String>,
 }
-

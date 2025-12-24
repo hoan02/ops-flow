@@ -94,9 +94,7 @@ export function IntegrationItem({
     <div
       className={cn(
         'group flex items-center gap-2 rounded-md px-2 py-1.5 text-sm cursor-pointer transition-colors',
-        isSelected
-          ? 'bg-accent text-accent-foreground'
-          : 'hover:bg-accent/50'
+        isSelected ? 'bg-accent text-accent-foreground' : 'hover:bg-accent/50'
       )}
       onClick={handleClick}
     >
@@ -129,7 +127,9 @@ export function IntegrationItem({
           ) : (
             <Wifi className="size-4" />
           )}
-          <span className="sr-only">{t('sidebar.integrations.testConnection')}</span>
+          <span className="sr-only">
+            {t('sidebar.integrations.testConnection')}
+          </span>
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -178,4 +178,3 @@ export function IntegrationItem({
     </div>
   )
 }
-
