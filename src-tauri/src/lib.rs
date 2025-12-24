@@ -6,6 +6,7 @@
 
 pub mod bindings;
 mod commands;
+mod integrations;
 mod types;
 mod utils;
 
