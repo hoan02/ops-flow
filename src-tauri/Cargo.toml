@@ -1,6 +1,6 @@
 [package]
 name = "ops-flow"
-version = "0.1.0"
+version = "1.0.0"
 description = "Ops Flow is a desktop DevOps control and visualization tool that provides real-time visibility into projects, environments, and CI/CD integrations. It enables configuration orchestration and status monitoring across GitLab, Jenkins, Kubernetes, SonarQube, and Keycloak while complementing existing DevOps workflows."
 authors = ["hoan02"]
 edition = "2021"
