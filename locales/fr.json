@@ -184,6 +184,16 @@
   "integration.credentials.usernamePlaceholder": "Entrez le nom d'utilisateur",
   "integration.credentials.password": "Mot de passe",
   "integration.credentials.passwordPlaceholder": "Entrez le mot de passe",
+  "integration.credentials.kubeconfigPath": "Chemin Kubeconfig",
+  "integration.credentials.kubeconfigPathPlaceholder": "Entrez le chemin vers le fichier kubeconfig (ex: ~/.kube/config)",
+  "integration.credentials.kubeconfigPathDescription": "Laisser vide pour utiliser les chemins par défaut (~/.kube/microk8s-config ou ~/.kube/config)",
+  "integration.credentials.authMethod": "Méthode d'authentification",
+  "integration.credentials.authMethod.usernamePassword": "Nom d'utilisateur / Mot de passe",
+  "integration.credentials.authMethod.token": "Token",
+  "integration.credentials.validation.usernameRequired": "Le nom d'utilisateur est requis pour l'intégration Jenkins",
+  "integration.credentials.validation.passwordOrTokenRequired": "Le mot de passe ou le token est requis pour l'intégration Jenkins",
+  "integration.credentials.validation.passwordRequired": "Le mot de passe est requis",
+  "integration.credentials.validation.tokenRequired": "Le token est requis",
   "integration.delete.confirmTitle": "Supprimer l'intégration",
   "integration.delete.confirmDescription": "Êtes-vous sûr de vouloir supprimer l'intégration \"{{name}}\" ? Cette action ne peut pas être annulée."
 }

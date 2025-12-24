@@ -184,6 +184,16 @@
   "integration.credentials.usernamePlaceholder": "Nhập tên người dùng",
   "integration.credentials.password": "Mật khẩu",
   "integration.credentials.passwordPlaceholder": "Nhập mật khẩu",
+  "integration.credentials.kubeconfigPath": "Đường dẫn Kubeconfig",
+  "integration.credentials.kubeconfigPathPlaceholder": "Nhập đường dẫn đến file kubeconfig (ví dụ: ~/.kube/config)",
+  "integration.credentials.kubeconfigPathDescription": "Để trống để sử dụng đường dẫn mặc định (~/.kube/microk8s-config hoặc ~/.kube/config)",
+  "integration.credentials.authMethod": "Phương thức xác thực",
+  "integration.credentials.authMethod.usernamePassword": "Tên người dùng / Mật khẩu",
+  "integration.credentials.authMethod.token": "Token",
+  "integration.credentials.validation.usernameRequired": "Tên người dùng là bắt buộc cho tích hợp Jenkins",
+  "integration.credentials.validation.passwordOrTokenRequired": "Mật khẩu hoặc token là bắt buộc cho tích hợp Jenkins",
+  "integration.credentials.validation.passwordRequired": "Mật khẩu là bắt buộc",
+  "integration.credentials.validation.tokenRequired": "Token là bắt buộc",
   "integration.delete.confirmTitle": "Xóa tích hợp",
   "integration.delete.confirmDescription": "Bạn có chắc chắn muốn xóa tích hợp \"{{name}}\"? Hành động này không thể hoàn tác."
 }

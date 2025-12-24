@@ -1,6 +1,6 @@
+import { useState } from 'react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,13 +18,17 @@ import {
   Trash2,
   Key,
   Wifi,
-  WifiOff,
   Loader2,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useDevOpsStore } from '@/store/devops-store'
 import type { Integration, IntegrationType } from '@/lib/tauri-bindings'
 import { useTestIntegrationConnection } from '@/services/integrations'
+import {
+  Status,
+  StatusIndicator,
+  StatusLabel,
+} from '@/components/ui/shadcn-io/status'
 
 interface IntegrationItemProps {
   integration: Integration
@@ -60,6 +64,11 @@ export function IntegrationItem({
   const isConnected = integration.credentials_ref !== null
   const isTesting = testConnection.isPending
 
+  // Track connection test result: 'online' | 'offline' | null (not tested yet)
+  const [connectionStatus, setConnectionStatus] = useState<
+    'online' | 'offline' | null
+  >(null)
+
   const handleClick = () => {
     setSelectedIntegrationId(isSelected ? null : integration.id)
   }
@@ -68,11 +77,19 @@ export function IntegrationItem({
     e.stopPropagation()
     try {
       await testConnection.mutateAsync(integration.id)
+      // Test successful - show online status
+      setConnectionStatus('online')
     } catch (error) {
       // Error is handled by the mutation
       console.error('Test connection failed:', error)
+      // Test failed - show offline status
+      setConnectionStatus('offline')
     }
   }
+
+  // Determine display status: use test result if available, otherwise use credentials_ref
+  const displayStatus: 'online' | 'offline' =
+    connectionStatus ?? (isConnected ? 'online' : 'offline')
 
   return (
     <div
@@ -92,22 +109,14 @@ export function IntegrationItem({
         </div>
       </div>
       <div className="flex items-center gap-1">
-        <Badge
-          variant={isConnected ? 'default' : 'outline'}
-          className="text-xs"
-        >
-          {isConnected ? (
-            <>
-              <Wifi className="mr-1 size-3" />
-              {t('sidebar.integrations.connected')}
-            </>
-          ) : (
-            <>
-              <WifiOff className="mr-1 size-3" />
-              {t('sidebar.integrations.disconnected')}
-            </>
-          )}
-        </Badge>
+        <Status status={displayStatus} className="text-xs">
+          <StatusIndicator />
+          <StatusLabel>
+            {displayStatus === 'online'
+              ? t('sidebar.integrations.connected')
+              : t('sidebar.integrations.disconnected')}
+          </StatusLabel>
+        </Status>
         <Button
           variant="ghost"
           size="icon-sm"

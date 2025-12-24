@@ -14,7 +14,9 @@ use serde_json::json;
 
 /// GitLab integration adapter.
 ///
-/// Handles API calls to GitLab instances using Personal Access Token authentication.
+/// Handles API calls to GitLab instances using Personal Access Token.
+/// Note: GitLab API v4 does not support Basic Auth with username/password.
+/// Only Personal Access Token (PRIVATE-TOKEN header) or OAuth tokens are supported.
 pub struct GitLabAdapter {
     /// Base URL of the GitLab instance
     base_url: String,
@@ -25,7 +27,7 @@ pub struct GitLabAdapter {
 }
 
 impl GitLabAdapter {
-    /// Creates a new GitLab adapter instance.
+    /// Creates a new GitLab adapter instance using Personal Access Token.
     pub fn new(base_url: String, token: String) -> Self {
         Self {
             base_url: base_url.trim_end_matches('/').to_string(),
@@ -65,10 +67,21 @@ impl GitLabAdapter {
             ));
         }
 
-        response.json::<T>().await.map_err(|e| {
-            log::error!("Failed to parse GitLab API response: {}", e);
+        // Get response body as text first to log it if parsing fails
+        let response_text = response.text().await.map_err(|e| {
+            log::error!("Failed to read GitLab API response body: {}", e);
+            IntegrationError::NetworkError {
+                message: format!("Failed to read response: {}", e),
+            }
+        })?;
+
+        // Try to parse as JSON
+        serde_json::from_str::<T>(&response_text).map_err(|e| {
+            log::error!("Failed to parse GitLab API response as JSON: {}", e);
+            log::error!("Response body (first 500 chars): {}", 
+                response_text.chars().take(500).collect::<String>());
             IntegrationError::ConfigError {
-                message: format!("Failed to parse response: {}", e),
+                message: format!("Failed to parse response: error decoding response body: {}", e),
             }
         })
     }
@@ -102,10 +115,21 @@ impl GitLabAdapter {
             ));
         }
 
-        response.json::<T>().await.map_err(|e| {
-            log::error!("Failed to parse GitLab API response: {}", e);
+        // Get response body as text first to log it if parsing fails
+        let response_text = response.text().await.map_err(|e| {
+            log::error!("Failed to read GitLab API response body: {}", e);
+            IntegrationError::NetworkError {
+                message: format!("Failed to read response: {}", e),
+            }
+        })?;
+
+        // Try to parse as JSON
+        serde_json::from_str::<T>(&response_text).map_err(|e| {
+            log::error!("Failed to parse GitLab API response as JSON: {}", e);
+            log::error!("Response body (first 500 chars): {}", 
+                response_text.chars().take(500).collect::<String>());
             IntegrationError::ConfigError {
-                message: format!("Failed to parse response: {}", e),
+                message: format!("Failed to parse response: error decoding response body: {}", e),
             }
         })
     }
@@ -149,7 +173,79 @@ impl IntegrationAdapter for GitLabAdapter {
     async fn test_connection(&self) -> Result<(), IntegrationError> {
         // Test connection by fetching current user info
         // This is a lightweight endpoint that verifies authentication
-        let _: serde_json::Value = self.get("/user").await?;
+        let url = self.api_url("/user");
+        log::debug!("Testing GitLab connection: {}", url);
+
+        let response = self
+            .client
+            .get(&url)
+            .header("PRIVATE-TOKEN", &self.token)
+            .timeout(std::time::Duration::from_secs(30))
+            .send()
+            .await?;
+
+        let status = response.status();
+        
+        // Get response body first to check content type
+        let response_text = response.text().await.map_err(|e| {
+            log::error!("Failed to read GitLab API response body: {}", e);
+            IntegrationError::NetworkError {
+                message: format!("Failed to read response: {}", e),
+            }
+        })?;
+
+        // Check if response is empty
+        if response_text.trim().is_empty() {
+            log::error!("GitLab API returned empty response");
+            return Err(IntegrationError::ConfigError {
+                message: "GitLab API returned empty response. Please check your base URL and token.".to_string(),
+            });
+        }
+
+        // Check if response is HTML (common when base URL is wrong or pointing to web UI)
+        let trimmed = response_text.trim_start();
+        if trimmed.starts_with("<!DOCTYPE") || trimmed.starts_with("<html") || trimmed.starts_with("<HTML") {
+            log::error!("GitLab API returned HTML instead of JSON");
+            log::error!("Response body (first 500 chars): {}", 
+                response_text.chars().take(500).collect::<String>());
+            log::error!("Full URL used: {}", url);
+            log::error!("Base URL configured: {}", self.base_url);
+            
+            return Err(IntegrationError::ConfigError {
+                message: format!(
+                    "GitLab API returned HTML instead of JSON. This usually means:\n\
+                    1. The base URL is incorrect (should be like 'https://gitlab.com' or 'https://gitlab.example.com', without '/api/v4')\n\
+                    2. The URL is pointing to the web UI instead of the API\n\
+                    3. There's a redirect to a login page\n\
+                    \n\
+                    Current base URL: {}\n\
+                    Full API URL: {}",
+                    self.base_url, url
+                ),
+            });
+        }
+
+        if !status.is_success() {
+            log::error!("GitLab connection test failed ({}): {}", status, response_text);
+            return Err(crate::integrations::errors::status_to_error(
+                status.as_u16(),
+                Some(response_text),
+            ));
+        }
+
+        // Try to parse as JSON to verify it's valid
+        serde_json::from_str::<serde_json::Value>(&response_text).map_err(|e| {
+            log::error!("Failed to parse GitLab API response as JSON: {}", e);
+            log::error!("Response body (first 500 chars): {}", 
+                response_text.chars().take(500).collect::<String>());
+            log::error!("Full URL used: {}", url);
+            
+            IntegrationError::ConfigError {
+                message: format!("Failed to parse response: error decoding response body: {}. Please verify your base URL and API endpoint are correct.", e),
+            }
+        })?;
+
+        log::debug!("GitLab connection test successful");
         Ok(())
     }
 

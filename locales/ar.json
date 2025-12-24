@@ -184,6 +184,16 @@
   "integration.credentials.usernamePlaceholder": "أدخل اسم المستخدم",
   "integration.credentials.password": "كلمة المرور",
   "integration.credentials.passwordPlaceholder": "أدخل كلمة المرور",
+  "integration.credentials.kubeconfigPath": "مسار Kubeconfig",
+  "integration.credentials.kubeconfigPathPlaceholder": "أدخل المسار إلى ملف kubeconfig (مثال: ~/.kube/config)",
+  "integration.credentials.kubeconfigPathDescription": "اتركه فارغاً لاستخدام المسارات الافتراضية (~/.kube/microk8s-config أو ~/.kube/config)",
+  "integration.credentials.authMethod": "طريقة المصادقة",
+  "integration.credentials.authMethod.usernamePassword": "اسم المستخدم / كلمة المرور",
+  "integration.credentials.authMethod.token": "رمز",
+  "integration.credentials.validation.usernameRequired": "اسم المستخدم مطلوب لتكامل Jenkins",
+  "integration.credentials.validation.passwordOrTokenRequired": "كلمة المرور أو الرمز مطلوب لتكامل Jenkins",
+  "integration.credentials.validation.passwordRequired": "كلمة المرور مطلوبة",
+  "integration.credentials.validation.tokenRequired": "الرمز مطلوب",
   "integration.delete.confirmTitle": "حذف التكامل",
   "integration.delete.confirmDescription": "هل أنت متأكد أنك تريد حذف التكامل \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء."
 }

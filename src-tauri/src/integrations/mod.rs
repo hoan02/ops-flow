@@ -62,12 +62,14 @@ pub fn create_adapter(
 
     match integration.integration_type {
         IntegrationType::GitLab => {
+            // GitLab API v4 only supports Personal Access Token authentication
+            // Basic Auth with username/password is not supported
             let token =
                 credentials
                     .token
                     .as_ref()
                     .ok_or_else(|| IntegrationError::ConfigError {
-                        message: "GitLab integration requires a token".to_string(),
+                        message: "GitLab integration requires a Personal Access Token. GitLab API v4 does not support Basic Auth with username/password.".to_string(),
                     })?;
 
             let adapter = gitlab::GitLabAdapter::new(integration.base_url.clone(), token.clone());
