@@ -17,7 +17,6 @@ import { useProjects } from '@/services/projects'
 import { useEnvironments, useSaveEnvironments } from '@/services/environments'
 import { EnvironmentItem } from './EnvironmentItem'
 import { EnvironmentDialog } from './EnvironmentDialog'
-import { cn } from '@/lib/utils'
 import type { Environment } from '@/lib/tauri-bindings'
 
 export function EnvironmentList() {

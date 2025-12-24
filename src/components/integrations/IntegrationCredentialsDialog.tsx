@@ -38,7 +38,7 @@ export function IntegrationCredentialsDialog({
   const [token, setToken] = useState('')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [showPassword, setShowPassword] = useState(false)
+  const [showPassword] = useState(false)
   const [kubeconfigPath, setKubeconfigPath] = useState('')
 
   // Determine if this integration needs auth method selection

@@ -1,5 +1,4 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
 import { logger } from '@/lib/logger'
 import { commands, unwrapResult } from '@/lib/tauri-bindings'
 

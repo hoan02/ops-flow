@@ -149,7 +149,7 @@ export function useTriggerJenkinsBuild() {
       const result = await commands.triggerJenkinsBuild(
         integrationId,
         jobName,
-        parameters || undefined
+        parameters || null
       )
 
       if (result.status === 'error') {
