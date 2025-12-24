@@ -5,6 +5,7 @@ description = "Ops Flow is a desktop DevOps control and visualization tool that 
 authors = ["hoan02"]
 edition = "2021"
 rust-version = "1.82"
+default-run = "ops-flow"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -14,6 +15,11 @@ rust-version = "1.82"
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
 name = "tauri_app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
+
+[[bin]]
+name = "export-bindings"
+path = "src/bin/export-bindings.rs"
+required-features = []
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
@@ -34,6 +40,8 @@ tauri-plugin-os = "2"
 tauri-plugin-global-shortcut = "2"
 log = "0.4"
 regex = "1"
+serde_yaml = "0.9"
+keyring = "2"
 
 # Type-safe Tauri command bindings
 specta = { version = "=2.0.0-rc.22", features = ["derive", "serde_json"] }

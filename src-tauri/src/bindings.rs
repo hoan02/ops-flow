@@ -1,7 +1,7 @@
 use tauri_specta::{collect_commands, Builder};
 
 pub fn generate_bindings() -> Builder<tauri::Wry> {
-    use crate::commands::{notifications, preferences, quick_pane, recovery};
+    use crate::commands::{config, credentials, notifications, preferences, quick_pane, recovery};
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
         preferences::greet,
@@ -16,11 +16,24 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         quick_pane::toggle_quick_pane,
         quick_pane::get_default_quick_pane_shortcut,
         quick_pane::update_quick_pane_shortcut,
+        // Config management commands
+        config::load_projects,
+        config::save_projects,
+        config::load_environments,
+        config::save_environments,
+        config::load_integrations,
+        config::save_integrations,
+        config::load_mappings,
+        config::save_mappings,
+        // Credentials management commands
+        credentials::save_integration_credentials,
+        credentials::get_integration_credentials,
+        credentials::delete_integration_credentials,
     ])
 }
 
 /// Export TypeScript bindings to the frontend.
-/// Run with: cargo test export_bindings -- --ignored
+/// Run with: cargo run --bin export-bindings
 pub fn export_ts_bindings() {
     generate_bindings()
         .export(
@@ -31,17 +44,6 @@ pub fn export_ts_bindings() {
         .expect("Failed to export TypeScript bindings");
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    /// Generate TypeScript bindings file.
-    /// This test is ignored by default so it doesn't run in CI.
-    /// Run manually with: cargo test export_bindings -- --ignored
-    #[test]
-    #[ignore]
-    fn export_bindings() {
-        export_ts_bindings();
-        println!("✓ TypeScript bindings exported to ../src/lib/bindings.ts");
-    }
-}
+// Note: The export_bindings test was removed because it causes
+// STATUS_ENTRYPOINT_NOT_FOUND errors on Windows due to missing DLL dependencies.
+// Use `cargo run --bin export-bindings` instead.

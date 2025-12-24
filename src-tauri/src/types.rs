@@ -1,5 +1,9 @@
 //! Shared types and validation functions for the Tauri application.
 
+mod project;
+
+pub use project::*;
+
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use specta::Type;

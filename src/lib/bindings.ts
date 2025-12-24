@@ -142,6 +142,127 @@ async updateQuickPaneShortcut(shortcut: string | null) : Promise<Result<null, st
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Loads all projects from disk.
+ */
+async loadProjects() : Promise<Result<Project[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_projects") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Saves all projects to disk.
+ */
+async saveProjects(projects: Project[]) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_projects", { projects }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Loads all environments from disk.
+ */
+async loadEnvironments() : Promise<Result<Environment[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_environments") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Saves all environments to disk.
+ */
+async saveEnvironments(environments: Environment[]) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_environments", { environments }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Loads all integrations from disk.
+ */
+async loadIntegrations() : Promise<Result<Integration[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_integrations") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Saves all integrations to disk.
+ */
+async saveIntegrations(integrations: Integration[]) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_integrations", { integrations }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Loads all mappings from disk.
+ */
+async loadMappings() : Promise<Result<Mapping[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_mappings") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Saves all mappings to disk.
+ */
+async saveMappings(mappings: Mapping[]) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_mappings", { mappings }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Saves integration credentials to the OS keyring.
+ */
+async saveIntegrationCredentials(integrationId: string, credentials: IntegrationCredentials) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_integration_credentials", { integrationId, credentials }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Gets integration credentials from the OS keyring.
+ */
+async getIntegrationCredentials(integrationId: string) : Promise<Result<IntegrationCredentials | null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_integration_credentials", { integrationId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Deletes integration credentials from the OS keyring.
+ */
+async deleteIntegrationCredentials(integrationId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("delete_integration_credentials", { integrationId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -170,7 +291,129 @@ quick_pane_shortcut: string | null;
  * If None, uses system locale detection
  */
 language: string | null }
+/**
+ * An environment represents a deployment target (dev, staging, prod, etc.)
+ */
+export type Environment = { 
+/**
+ * Unique identifier for the environment
+ */
+id: string; 
+/**
+ * Environment name (e.g., "dev", "staging", "prod")
+ */
+name: string; 
+/**
+ * Kubernetes namespace (if applicable)
+ */
+namespace: string | null; 
+/**
+ * ID of the project this environment belongs to
+ */
+project_id: string }
+/**
+ * Integration configuration (does not contain credentials)
+ */
+export type Integration = { 
+/**
+ * Unique identifier for the integration
+ */
+id: string; 
+/**
+ * Type of integration
+ */
+type: IntegrationType; 
+/**
+ * Human-readable integration name
+ */
+name: string; 
+/**
+ * Base URL of the integration service
+ */
+base_url: string; 
+/**
+ * Reference to credentials stored in OS keyring
+ * This is the key used to retrieve credentials from keyring
+ */
+credentials_ref: string | null }
+/**
+ * Credentials for an integration (stored securely in OS keyring)
+ */
+export type IntegrationCredentials = { 
+/**
+ * API token or access token
+ */
+token: string | null; 
+/**
+ * Username (if applicable)
+ */
+username: string | null; 
+/**
+ * Password (if applicable)
+ */
+password: string | null; 
+/**
+ * Additional custom fields as key-value pairs
+ */
+custom?: Partial<{ [key in string]: string }> }
+/**
+ * Type of integration system
+ */
+export type IntegrationType = "gitlab" | "jenkins" | "kubernetes" | "sonarqube" | "keycloak"
 export type JsonValue = null | boolean | number | string | JsonValue[] | Partial<{ [key in string]: JsonValue }>
+/**
+ * Mapping between different system identifiers
+ * Maps repository IDs to job IDs to namespaces, service names, etc.
+ */
+export type Mapping = { 
+/**
+ * Unique identifier for the mapping
+ */
+id: string; 
+/**
+ * GitLab repository ID (if applicable)
+ */
+repo_id: string | null; 
+/**
+ * Jenkins job ID (if applicable)
+ */
+job_id: string | null; 
+/**
+ * Kubernetes namespace
+ */
+namespace: string | null; 
+/**
+ * Service name in Kubernetes
+ */
+service_name: string | null; 
+/**
+ * Project ID this mapping belongs to
+ */
+project_id: string | null; 
+/**
+ * Environment ID this mapping belongs to
+ */
+environment_id: string | null }
+/**
+ * A project represents a software project that can have multiple environments.
+ */
+export type Project = { 
+/**
+ * Unique identifier for the project
+ */
+id: string; 
+/**
+ * Human-readable project name
+ */
+name: string; 
+/**
+ * Optional project description
+ */
+description: string | null; 
+/**
+ * List of environment IDs associated with this project
+ */
+environments: string[] }
 /**
  * Error types for recovery operations (typed for frontend matching)
  */

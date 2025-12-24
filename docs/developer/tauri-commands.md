@@ -140,7 +140,9 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
 npm run rust:bindings
 ```
 
-This runs `cargo test export_bindings -- --ignored` which generates `src/lib/bindings.ts`.
+This runs `cargo run --bin export-bindings` which generates `src/lib/bindings.ts`.
+
+**Note:** We use a binary target instead of a test because tests on Windows can fail with `STATUS_ENTRYPOINT_NOT_FOUND` due to missing DLL dependencies. The binary has full access to the Tauri runtime.
 
 ### 5. Use in frontend
 
@@ -162,7 +164,9 @@ Always commit:
 ```
 src-tauri/src/
 ├── lib.rs              # Commands with #[specta::specta]
-├── bindings.rs         # Command registration + export test
+├── bindings.rs         # Command registration + export function
+├── bin/
+│   └── export-bindings.rs  # Binary to export TypeScript bindings
 └── Cargo.toml          # specta, tauri-specta dependencies
 
 src/lib/
@@ -194,13 +198,20 @@ await commands.saveEmergencyData(filename, data as JsonValue)
 
 ### Bindings generated at runtime
 
-TypeScript bindings are generated when the app runs in debug mode, or via:
+TypeScript bindings are generated when the app runs in debug mode, or manually via:
 
 ```bash
 npm run rust:bindings
 ```
 
-This must be run after changing Rust commands.
+Or directly:
+
+```bash
+cd src-tauri
+cargo run --bin export-bindings
+```
+
+This must be run after changing Rust commands. The binary target avoids Windows DLL issues that can occur when running as a test.
 
 ## Testing
 
