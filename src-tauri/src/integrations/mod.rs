@@ -4,7 +4,12 @@
 //! that connect to external services (GitLab, Jenkins, Kubernetes, etc.).
 
 pub mod errors;
+pub mod gitlab;
+pub mod jenkins;
+pub mod keycloak;
+pub mod kubernetes;
 pub mod registry;
+pub mod sonarqube;
 
 pub use errors::IntegrationError;
 pub use registry::{clear_cache, get_adapter, load_credentials};
@@ -45,13 +50,10 @@ pub trait IntegrationAdapter: Send + Sync {
 
 /// Helper function to create an adapter instance for a given integration.
 ///
-/// This function will be implemented in future tasks to create specific
-/// adapter types (GitLabAdapter, JenkinsAdapter, etc.).
-///
-/// For now, returns an error indicating the adapter is not yet implemented.
+/// Creates the appropriate adapter type based on the integration type.
 pub fn create_adapter(
     integration: &Integration,
-    _credentials: &crate::types::IntegrationCredentials,
+    credentials: &crate::types::IntegrationCredentials,
 ) -> Result<Box<dyn IntegrationAdapter>, IntegrationError> {
     log::debug!(
         "Creating adapter for integration: {} ({:?})",
@@ -59,13 +61,91 @@ pub fn create_adapter(
         integration.integration_type
     );
 
-    // TODO: Implement specific adapters in future tasks
-    // For now, return an error indicating not implemented
-    Err(IntegrationError::ConfigError {
-        message: format!(
-            "Adapter for {:?} is not yet implemented",
-            integration.integration_type
-        ),
-    })
+    match integration.integration_type {
+        IntegrationType::GitLab => {
+            let token = credentials
+                .token
+                .as_ref()
+                .ok_or_else(|| IntegrationError::ConfigError {
+                    message: "GitLab integration requires a token".to_string(),
+                })?;
+
+            let adapter = gitlab::GitLabAdapter::new(integration.base_url.clone(), token.clone());
+            Ok(Box::new(adapter))
+        }
+        IntegrationType::Jenkins => {
+            let username = credentials
+                .username
+                .as_ref()
+                .ok_or_else(|| IntegrationError::ConfigError {
+                    message: "Jenkins integration requires a username".to_string(),
+                })?;
+
+            // Use password or token (both can be used as password in Basic Auth)
+            let password = credentials
+                .password
+                .as_ref()
+                .or_else(|| credentials.token.as_ref())
+                .ok_or_else(|| IntegrationError::ConfigError {
+                    message: "Jenkins integration requires a password or token".to_string(),
+                })?;
+
+            let adapter = jenkins::JenkinsAdapter::new(
+                integration.base_url.clone(),
+                username.clone(),
+                password.clone(),
+            );
+            Ok(Box::new(adapter))
+        }
+        IntegrationType::SonarQube => {
+            let token = credentials
+                .token
+                .as_ref()
+                .ok_or_else(|| IntegrationError::ConfigError {
+                    message: "SonarQube integration requires a token".to_string(),
+                })?;
+
+            let adapter = sonarqube::SonarQubeAdapter::new(integration.base_url.clone(), token.clone());
+            Ok(Box::new(adapter))
+        }
+        IntegrationType::Keycloak => {
+            let username = credentials
+                .username
+                .as_ref()
+                .ok_or_else(|| IntegrationError::ConfigError {
+                    message: "Keycloak integration requires a username".to_string(),
+                })?;
+
+            // Use password or token (both can be used as password in Basic Auth)
+            let password = credentials
+                .password
+                .as_ref()
+                .or_else(|| credentials.token.as_ref())
+                .ok_or_else(|| IntegrationError::ConfigError {
+                    message: "Keycloak integration requires a password or token".to_string(),
+                })?;
+
+            let adapter = keycloak::KeycloakAdapter::new(
+                integration.base_url.clone(),
+                username.clone(),
+                password.clone(),
+            );
+            Ok(Box::new(adapter))
+        }
+        IntegrationType::Kubernetes => {
+            // Kubernetes adapter creation is async and handled directly in command layer
+            // This function is synchronous, so we return an error here
+            // The command layer will create the adapter asynchronously
+            Err(IntegrationError::ConfigError {
+                message: "Kubernetes adapter must be created asynchronously in command layer".to_string(),
+            })
+        }
+        _ => Err(IntegrationError::ConfigError {
+            message: format!(
+                "Adapter for {:?} is not yet implemented",
+                integration.integration_type
+            ),
+        }),
+    }
 }
 

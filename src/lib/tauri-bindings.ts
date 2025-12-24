@@ -32,6 +32,9 @@ export type {
   IntegrationType,
   IntegrationCredentials,
   Mapping,
+  GitLabProject,
+  GitLabPipeline,
+  GitLabWebhook,
 } from './bindings'
 
 /**

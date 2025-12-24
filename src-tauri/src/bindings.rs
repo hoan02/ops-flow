@@ -1,7 +1,7 @@
 use tauri_specta::{collect_commands, Builder};
 
 pub fn generate_bindings() -> Builder<tauri::Wry> {
-    use crate::commands::{config, credentials, notifications, preferences, quick_pane, recovery};
+    use crate::commands::{config, credentials, gitlab, jenkins, keycloak, kubernetes, notifications, preferences, quick_pane, recovery, sonarqube};
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
         preferences::greet,
@@ -29,6 +29,27 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         credentials::save_integration_credentials,
         credentials::get_integration_credentials,
         credentials::delete_integration_credentials,
+        // GitLab integration commands
+        gitlab::fetch_gitlab_projects,
+        gitlab::fetch_gitlab_pipelines,
+        gitlab::fetch_gitlab_webhooks,
+        gitlab::trigger_gitlab_pipeline,
+        // Jenkins integration commands
+        jenkins::fetch_jenkins_jobs,
+        jenkins::fetch_jenkins_builds,
+        jenkins::fetch_jenkins_build_details,
+        jenkins::trigger_jenkins_build,
+        // Kubernetes integration commands
+        kubernetes::fetch_k8s_namespaces,
+        kubernetes::fetch_k8s_pods,
+        kubernetes::fetch_k8s_services,
+        kubernetes::fetch_k8s_pod_details,
+        // SonarQube integration commands
+        sonarqube::fetch_sonarqube_projects,
+        sonarqube::fetch_sonarqube_metrics,
+        // Keycloak integration commands
+        keycloak::fetch_keycloak_realms,
+        keycloak::fetch_keycloak_clients,
     ])
 }
 

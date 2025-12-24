@@ -263,6 +263,182 @@ async deleteIntegrationCredentials(integrationId: string) : Promise<Result<null,
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
 }
+},
+/**
+ * Fetches GitLab projects for a given integration.
+ */
+async fetchGitlabProjects(integrationId: string) : Promise<Result<GitLabProject[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_gitlab_projects", { integrationId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches GitLab pipelines for a given project.
+ */
+async fetchGitlabPipelines(integrationId: string, projectId: number) : Promise<Result<GitLabPipeline[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_gitlab_pipelines", { integrationId, projectId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches GitLab webhooks for a given project.
+ */
+async fetchGitlabWebhooks(integrationId: string, projectId: number) : Promise<Result<GitLabWebhook[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_gitlab_webhooks", { integrationId, projectId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Triggers a GitLab pipeline for a given project.
+ */
+async triggerGitlabPipeline(integrationId: string, projectId: number, ref: string) : Promise<Result<GitLabPipeline, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("trigger_gitlab_pipeline", { integrationId, projectId, ref }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches Jenkins jobs for a given integration.
+ */
+async fetchJenkinsJobs(integrationId: string) : Promise<Result<JenkinsJob[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_jenkins_jobs", { integrationId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches Jenkins builds for a given job.
+ */
+async fetchJenkinsBuilds(integrationId: string, jobName: string) : Promise<Result<JenkinsBuild[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_jenkins_builds", { integrationId, jobName }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches detailed information for a specific Jenkins build.
+ */
+async fetchJenkinsBuildDetails(integrationId: string, jobName: string, buildNumber: number) : Promise<Result<JenkinsBuild, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_jenkins_build_details", { integrationId, jobName, buildNumber }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Triggers a Jenkins build for a given job.
+ */
+async triggerJenkinsBuild(integrationId: string, jobName: string, parameters: Partial<{ [key in string]: string }> | null) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("trigger_jenkins_build", { integrationId, jobName, parameters }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches Kubernetes namespaces for a given integration.
+ */
+async fetchK8sNamespaces(integrationId: string) : Promise<Result<K8sNamespace[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_k8s_namespaces", { integrationId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches Kubernetes pods in a specific namespace.
+ */
+async fetchK8sPods(integrationId: string, namespace: string) : Promise<Result<K8sPod[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_k8s_pods", { integrationId, namespace }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches Kubernetes services in a specific namespace.
+ */
+async fetchK8sServices(integrationId: string, namespace: string) : Promise<Result<K8sService[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_k8s_services", { integrationId, namespace }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches detailed information for a specific Kubernetes pod.
+ */
+async fetchK8sPodDetails(integrationId: string, namespace: string, podName: string) : Promise<Result<K8sPod, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_k8s_pod_details", { integrationId, namespace, podName }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches SonarQube projects for a given integration.
+ */
+async fetchSonarqubeProjects(integrationId: string) : Promise<Result<SonarQubeProject[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_sonarqube_projects", { integrationId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches SonarQube metrics for a given project.
+ */
+async fetchSonarqubeMetrics(integrationId: string, projectKey: string) : Promise<Result<SonarQubeMetrics, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_sonarqube_metrics", { integrationId, projectKey }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches Keycloak realms for a given integration.
+ */
+async fetchKeycloakRealms(integrationId: string) : Promise<Result<KeycloakRealm[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_keycloak_realms", { integrationId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Fetches Keycloak clients for a given realm.
+ */
+async fetchKeycloakClients(integrationId: string, realm: string) : Promise<Result<KeycloakClient[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("fetch_keycloak_clients", { integrationId, realm }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
 }
 }
 
@@ -312,6 +488,62 @@ namespace: string | null;
  */
 project_id: string }
 /**
+ * GitLab pipeline representation.
+ */
+export type GitLabPipeline = { 
+/**
+ * Pipeline ID
+ */
+id: number; 
+/**
+ * Pipeline status (e.g., "success", "failed", "running", "pending")
+ */
+status: string; 
+/**
+ * Git reference (branch or tag)
+ */
+ref: string; 
+/**
+ * Creation timestamp (ISO 8601 format)
+ */
+created_at: string }
+/**
+ * GitLab project representation.
+ */
+export type GitLabProject = { 
+/**
+ * Project ID
+ */
+id: number; 
+/**
+ * Project name
+ */
+name: string; 
+/**
+ * Project path (e.g., "group/project")
+ */
+path: string; 
+/**
+ * Web URL to access the project
+ */
+web_url: string }
+/**
+ * GitLab webhook representation.
+ */
+export type GitLabWebhook = { 
+/**
+ * Webhook ID
+ */
+id: number; 
+/**
+ * Webhook URL
+ */
+url: string; 
+/**
+ * List of events this webhook subscribes to
+ */
+events: string[] }
+/**
  * Integration configuration (does not contain credentials)
  */
 export type Integration = { 
@@ -360,7 +592,163 @@ custom?: Partial<{ [key in string]: string }> }
  * Type of integration system
  */
 export type IntegrationType = "gitlab" | "jenkins" | "kubernetes" | "sonarqube" | "keycloak"
+/**
+ * Jenkins build representation.
+ */
+export type JenkinsBuild = { 
+/**
+ * Build number
+ */
+number: number; 
+/**
+ * Build status
+ */
+status: JenkinsBuildStatus; 
+/**
+ * Build timestamp (Unix timestamp in milliseconds, as string to avoid i64 BigInt issues)
+ */
+timestamp: string; 
+/**
+ * Build URL
+ */
+url: string; 
+/**
+ * Build duration in milliseconds (None if still building, as string to avoid i64 BigInt issues)
+ */
+duration: string | null }
+/**
+ * Jenkins build status enumeration.
+ */
+export type JenkinsBuildStatus = "success" | "failure" | "unstable" | "aborted" | "notbuilt" | "building" | "pending"
+/**
+ * Jenkins job representation.
+ */
+export type JenkinsJob = { 
+/**
+ * Job name
+ */
+name: string; 
+/**
+ * Job URL
+ */
+url: string; 
+/**
+ * Job color/status indicator (e.g., "blue" for success, "red" for failure, "notbuilt" for not built)
+ */
+color: string }
 export type JsonValue = null | boolean | number | string | JsonValue[] | Partial<{ [key in string]: JsonValue }>
+/**
+ * Kubernetes namespace representation.
+ */
+export type K8sNamespace = { 
+/**
+ * Namespace name
+ */
+name: string; 
+/**
+ * Namespace status (e.g., "Active", "Terminating")
+ */
+status: string; 
+/**
+ * Creation timestamp (ISO 8601 format)
+ */
+created_at: string }
+/**
+ * Kubernetes pod representation.
+ */
+export type K8sPod = { 
+/**
+ * Pod name
+ */
+name: string; 
+/**
+ * Namespace the pod belongs to
+ */
+namespace: string; 
+/**
+ * Pod status (e.g., "Running", "Pending", "Failed", "Succeeded")
+ */
+status: string; 
+/**
+ * List of container names in the pod
+ */
+containers: string[]; 
+/**
+ * Node name where the pod is running
+ */
+node: string | null }
+/**
+ * Kubernetes service representation.
+ */
+export type K8sService = { 
+/**
+ * Service name
+ */
+name: string; 
+/**
+ * Namespace the service belongs to
+ */
+namespace: string; 
+/**
+ * Service type (e.g., "ClusterIP", "NodePort", "LoadBalancer", "ExternalName")
+ */
+type: string; 
+/**
+ * List of ports exposed by the service
+ */
+ports: K8sServicePort[]; 
+/**
+ * Number of endpoints (if available)
+ */
+endpoint_count: number | null }
+/**
+ * Kubernetes service port representation.
+ */
+export type K8sServicePort = { 
+/**
+ * Port name (if specified)
+ */
+name: string | null; 
+/**
+ * Port number
+ */
+port: number; 
+/**
+ * Target port (can be a number or string)
+ */
+target_port: string | null; 
+/**
+ * Protocol (e.g., "TCP", "UDP")
+ */
+protocol: string }
+/**
+ * Keycloak client representation.
+ */
+export type KeycloakClient = { 
+/**
+ * Client ID
+ */
+client_id: string; 
+/**
+ * Client name
+ */
+name: string; 
+/**
+ * Whether the client is enabled
+ */
+enabled: boolean }
+/**
+ * Keycloak realm representation.
+ */
+export type KeycloakRealm = { 
+/**
+ * Realm identifier
+ */
+realm: string; 
+/**
+ * Whether the realm is enabled
+ */
+enabled: boolean }
 /**
  * Mapping between different system identifiers
  * Maps repository IDs to job IDs to namespaces, service names, etc.
@@ -438,6 +826,46 @@ export type RecoveryError =
  * JSON serialization/deserialization error
  */
 { type: "ParseError"; message: string }
+/**
+ * SonarQube metrics representation.
+ */
+export type SonarQubeMetrics = { 
+/**
+ * Code coverage percentage (0-100)
+ */
+coverage: number | null; 
+/**
+ * Number of bugs
+ */
+bugs: number; 
+/**
+ * Number of vulnerabilities
+ */
+vulnerabilities: number; 
+/**
+ * Number of code smells
+ */
+code_smells: number; 
+/**
+ * Technical debt in minutes (as string to avoid i64 BigInt issues)
+ */
+technical_debt: string | null }
+/**
+ * SonarQube project representation.
+ */
+export type SonarQubeProject = { 
+/**
+ * Project key (unique identifier)
+ */
+key: string; 
+/**
+ * Project name
+ */
+name: string; 
+/**
+ * Project qualifier (e.g., "TRK" for track, "APP" for application)
+ */
+qualifier: string }
 
 /** tauri-specta globals **/
 
