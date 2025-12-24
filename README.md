@@ -1,6 +1,6 @@
-# Tauri React Template
+# Ops Flow
 
-A "batteries-included" template for building production-ready desktop applications with **Tauri v2**, **React**, and **TypeScript**. Designed with opinionated patterns that help both human developers and AI coding agents build well-architected apps from the start.
+Ops Flow is a desktop DevOps control and visualization tool that provides real-time visibility into projects, environments, and CI/CD integrations. It enables configuration orchestration and status monitoring across GitLab, Jenkins, Kubernetes, SonarQube, and Keycloak while complementing existing DevOps workflows.
 
 ## Why This Template?
 

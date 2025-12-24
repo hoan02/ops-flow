@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository is a template with sensible defaults for building Tauri React apps.
+Ops Flow is a desktop DevOps control and visualization tool that provides real-time visibility into projects, environments, and CI/CD integrations. It enables configuration orchestration and status monitoring across GitLab, Jenkins, Kubernetes, SonarQube, and Keycloak while complementing existing DevOps workflows.
 
 ## Core Rules
 

@@ -121,7 +121,7 @@ async function prepareRelease() {
 
     // Final check that Rust code compiles
     console.log('\n🔍 Running final compilation check...')
-    exec('source ~/.cargo/env && cd src-tauri && cargo check')
+    exec('cd src-tauri && cargo check')
     console.log('✅ Rust compilation check passed')
 
     console.log(`\n🎉 Successfully prepared release ${tagVersion}!`)
@@ -159,10 +159,10 @@ async function prepareRelease() {
 
       console.log(`\n🎊 Release ${tagVersion} has been published!`)
       console.log(
-        '📱 Check GitHub Actions: https://github.com/YOUR_USERNAME/YOUR_REPO/actions'
+        '📱 Check GitHub Actions: https://github.com/hoan02/ops-flow/actions'
       )
       console.log(
-        '📦 Draft release will appear at: https://github.com/YOUR_USERNAME/YOUR_REPO/releases'
+        '📦 Draft release will appear at: https://github.com/hoan02/ops-flow/releases'
       )
       console.log(
         '\n⚠️  Remember: You need to manually publish the draft release on GitHub!'
