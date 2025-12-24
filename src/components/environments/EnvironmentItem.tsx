@@ -28,12 +28,11 @@ export function EnvironmentItem({
   const selectedEnvironmentId = useDevOpsStore(
     state => state.selectedEnvironmentId
   )
-  const setSelectedEnvironmentId = useDevOpsStore.getState()
-    .setSelectedEnvironmentId
 
   const isSelected = selectedEnvironmentId === environment.id
 
   const handleClick = () => {
+    const { setSelectedEnvironmentId } = useDevOpsStore.getState()
     setSelectedEnvironmentId(isSelected ? null : environment.id)
   }
 

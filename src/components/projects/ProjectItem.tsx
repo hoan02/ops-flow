@@ -20,11 +20,11 @@ interface ProjectItemProps {
 export function ProjectItem({ project, onEdit, onDelete }: ProjectItemProps) {
   const { t } = useTranslation()
   const selectedProjectId = useDevOpsStore(state => state.selectedProjectId)
-  const setSelectedProjectId = useDevOpsStore.getState().setSelectedProjectId
 
   const isSelected = selectedProjectId === project.id
 
   const handleClick = () => {
+    const { setSelectedProjectId } = useDevOpsStore.getState()
     setSelectedProjectId(isSelected ? null : project.id)
   }
 

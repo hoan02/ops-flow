@@ -55,8 +55,6 @@ export function IntegrationItem({
   const selectedIntegrationId = useDevOpsStore(
     state => state.selectedIntegrationId
   )
-  const setSelectedIntegrationId = useDevOpsStore.getState()
-    .setSelectedIntegrationId
 
   const testConnection = useTestIntegrationConnection()
   const isSelected = selectedIntegrationId === integration.id
@@ -70,6 +68,7 @@ export function IntegrationItem({
   >(null)
 
   const handleClick = () => {
+    const { setSelectedIntegrationId } = useDevOpsStore.getState()
     setSelectedIntegrationId(isSelected ? null : integration.id)
   }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Dialog,
@@ -41,25 +41,16 @@ export function EnvironmentDialog({
   const saveEnvironments = useSaveEnvironments()
 
   const isEditMode = environment !== null
-  const [name, setName] = useState('')
-  const [namespace, setNamespace] = useState('')
-  const [projectId, setProjectId] = useState('')
+  
+  // Initialize state from props - component resets when key changes
+  const [name, setName] = useState(() => environment?.name ?? '')
+  const [namespace, setNamespace] = useState(() => environment?.namespace ?? '')
+  const [projectId, setProjectId] = useState(() => environment?.project_id ?? '')
   const [nameError, setNameError] = useState('')
   const [projectIdError, setProjectIdError] = useState('')
 
-  useEffect(() => {
-    if (environment) {
-      setName(environment.name)
-      setNamespace(environment.namespace ?? '')
-      setProjectId(environment.project_id)
-    } else {
-      setName('')
-      setNamespace('')
-      setProjectId('')
-    }
-    setNameError('')
-    setProjectIdError('')
-  }, [environment, open])
+  // Reset state when environment or open changes using key prop
+  const dialogKey = `${environment?.id ?? 'new'}-${open}`
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -116,7 +107,7 @@ export function EnvironmentDialog({
     : t('environment.dialog.add')
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} key={dialogKey}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

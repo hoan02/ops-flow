@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { toast } from 'sonner'
 import {
@@ -33,14 +33,6 @@ export function IntegrationCredentialsDialog({
   const { data: existingCredentials } = useIntegrationCredentials(integration.id)
   const saveCredentials = useSaveIntegrationCredentials()
 
-  // Auth method: 'username-password' | 'token' | null (null means no choice needed)
-  const [authMethod, setAuthMethod] = useState<'username-password' | 'token' | null>(null)
-  const [token, setToken] = useState('')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [showPassword] = useState(false)
-  const [kubeconfigPath, setKubeconfigPath] = useState('')
-
   // Determine if this integration needs auth method selection
   const needsAuthMethodSelection = (type: IntegrationType): boolean => {
     // Jenkins can use username/password or username/token
@@ -48,45 +40,35 @@ export function IntegrationCredentialsDialog({
     return type === 'jenkins'
   }
 
-  useEffect(() => {
-    if (existingCredentials) {
-      setToken(existingCredentials.token ?? '')
-      setUsername(existingCredentials.username ?? '')
-      setPassword(existingCredentials.password ?? '')
-      setKubeconfigPath(
-        existingCredentials.custom?.['kubeconfig_path'] ?? ''
-      )
-
-      // Determine auth method from existing credentials
-      if (needsAuthMethodSelection(integration.type)) {
-        const hasToken = !!existingCredentials.token?.trim()
-        const hasPassword = !!existingCredentials.password?.trim()
-
-        if (integration.type === 'jenkins') {
-          // Jenkins always needs username, can use password or token
-          // If both exist, prefer password (as per Rust code logic)
-          if (hasPassword) {
-            setAuthMethod('username-password')
-          } else if (hasToken) {
-            setAuthMethod('token')
-          } else {
-            // Default to username-password if neither exists
-            setAuthMethod('username-password')
-          }
-        }
-      }
-    } else {
-      setToken('')
-      setUsername('')
-      setPassword('')
-      setKubeconfigPath('')
-      // Set default auth method for integrations that need selection
-      if (needsAuthMethodSelection(integration.type)) {
-        // Default to username-password for Jenkins
-        setAuthMethod('username-password')
-      }
+  // Determine initial auth method from existing credentials
+  const getInitialAuthMethod = (): 'username-password' | 'token' => {
+    if (!existingCredentials || !needsAuthMethodSelection(integration.type)) {
+      return 'username-password'
     }
-  }, [existingCredentials, open, integration.type])
+    const hasToken = !!existingCredentials.token?.trim()
+    const hasPassword = !!existingCredentials.password?.trim()
+    if (hasPassword) {
+      return 'username-password'
+    } else if (hasToken) {
+      return 'token'
+    }
+    return 'username-password'
+  }
+
+  // Initialize state from props - component resets when key changes
+  const [authMethod, setAuthMethod] = useState<'username-password' | 'token'>(() => 
+    needsAuthMethodSelection(integration.type) ? getInitialAuthMethod() : 'username-password'
+  )
+  const [token, setToken] = useState(() => existingCredentials?.token ?? '')
+  const [username, setUsername] = useState(() => existingCredentials?.username ?? '')
+  const [password, setPassword] = useState(() => existingCredentials?.password ?? '')
+  const [showPassword] = useState(false)
+  const [kubeconfigPath, setKubeconfigPath] = useState(() => 
+    existingCredentials?.custom?.['kubeconfig_path'] ?? ''
+  )
+
+  // Reset state when credentials, integration, or open changes using key prop
+  const dialogKey = `${integration.id}-${existingCredentials ? 'edit' : 'new'}-${open}`
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -173,7 +155,7 @@ export function IntegrationCredentialsDialog({
   const showAuthMethodSelection = needsAuthMethodSelection(integration.type)
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} key={dialogKey}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

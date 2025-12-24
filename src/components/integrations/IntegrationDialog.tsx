@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Dialog,
@@ -29,11 +29,11 @@ interface IntegrationDialogProps {
   onClose: () => void
 }
 
-const integrationTypes: Array<{
+const integrationTypes: {
   value: IntegrationType
   label: string
   icon: typeof GitBranch
-}> = [
+}[] = [
   { value: 'gitlab', label: 'GitLab', icon: GitBranch },
   { value: 'jenkins', label: 'Jenkins', icon: Server },
   { value: 'kubernetes', label: 'Kubernetes', icon: Layers },
@@ -52,25 +52,16 @@ export function IntegrationDialog({
   const saveIntegrations = useSaveIntegrations()
 
   const isEditMode = integration !== null
-  const [type, setType] = useState<IntegrationType>('gitlab')
-  const [name, setName] = useState('')
-  const [baseUrl, setBaseUrl] = useState('')
+  
+  // Initialize state from props - component resets when key changes
+  const [type, setType] = useState<IntegrationType>(() => integration?.type ?? 'gitlab')
+  const [name, setName] = useState(() => integration?.name ?? '')
+  const [baseUrl, setBaseUrl] = useState(() => integration?.base_url ?? '')
   const [nameError, setNameError] = useState('')
   const [baseUrlError, setBaseUrlError] = useState('')
 
-  useEffect(() => {
-    if (integration) {
-      setType(integration.type)
-      setName(integration.name)
-      setBaseUrl(integration.base_url)
-    } else {
-      setType('gitlab')
-      setName('')
-      setBaseUrl('')
-    }
-    setNameError('')
-    setBaseUrlError('')
-  }, [integration, open])
+  // Reset state when integration or open changes using key prop
+  const dialogKey = `${integration?.id ?? 'new'}-${open}`
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -138,7 +129,7 @@ export function IntegrationDialog({
   const selectedType = integrationTypes.find(t => t.value === type)
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} key={dialogKey}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>

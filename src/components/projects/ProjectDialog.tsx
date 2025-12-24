@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   Dialog,
@@ -33,20 +33,14 @@ export function ProjectDialog({
   const saveProjects = useSaveProjects()
 
   const isEditMode = project !== null
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
+  
+  // Initialize state from props - component resets when key changes
+  const [name, setName] = useState(() => project?.name ?? '')
+  const [description, setDescription] = useState(() => project?.description ?? '')
   const [nameError, setNameError] = useState('')
 
-  useEffect(() => {
-    if (project) {
-      setName(project.name)
-      setDescription(project.description ?? '')
-    } else {
-      setName('')
-      setDescription('')
-    }
-    setNameError('')
-  }, [project, open])
+  // Reset state when project or open changes using key prop
+  const dialogKey = `${project?.id ?? 'new'}-${open}`
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -96,7 +90,7 @@ export function ProjectDialog({
     : t('project.dialog.add')
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} key={dialogKey}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
