@@ -5,6 +5,7 @@
 
 pub mod config;
 pub mod credentials;
+pub mod flows;
 pub mod gitlab;
 pub mod jenkins;
 pub mod keycloak;

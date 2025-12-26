@@ -7,6 +7,7 @@ interface UIState {
   commandPaletteOpen: boolean
   preferencesOpen: boolean
   lastQuickPaneEntry: string | null
+  flowEditorMode: boolean
 
   toggleLeftSidebar: () => void
   setLeftSidebarVisible: (visible: boolean) => void
@@ -17,6 +18,7 @@ interface UIState {
   togglePreferences: () => void
   setPreferencesOpen: (open: boolean) => void
   setLastQuickPaneEntry: (text: string) => void
+  setFlowEditorMode: (enabled: boolean) => void
 }
 
 export const useUIStore = create<UIState>()(
@@ -27,6 +29,7 @@ export const useUIStore = create<UIState>()(
       commandPaletteOpen: false,
       preferencesOpen: false,
       lastQuickPaneEntry: null,
+      flowEditorMode: false,
 
       toggleLeftSidebar: () =>
         set(
@@ -78,6 +81,9 @@ export const useUIStore = create<UIState>()(
 
       setLastQuickPaneEntry: text =>
         set({ lastQuickPaneEntry: text }, undefined, 'setLastQuickPaneEntry'),
+
+      setFlowEditorMode: enabled =>
+        set({ flowEditorMode: enabled }, undefined, 'setFlowEditorMode'),
     }),
     {
       name: 'ui-store',

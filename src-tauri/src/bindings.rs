@@ -2,8 +2,8 @@ use tauri_specta::{collect_commands, Builder};
 
 pub fn generate_bindings() -> Builder<tauri::Wry> {
     use crate::commands::{
-        config, credentials, gitlab, jenkins, keycloak, kubernetes, notifications, preferences,
-        quick_pane, recovery, sonarqube,
+        config, credentials, flows, gitlab, jenkins, keycloak, kubernetes, notifications,
+        preferences, quick_pane, recovery, sonarqube,
     };
 
     Builder::<tauri::Wry>::new().commands(collect_commands![
@@ -33,6 +33,11 @@ pub fn generate_bindings() -> Builder<tauri::Wry> {
         credentials::save_integration_credentials,
         credentials::get_integration_credentials,
         credentials::delete_integration_credentials,
+        // Flow editor commands
+        flows::load_flows,
+        flows::load_flow,
+        flows::save_flow,
+        flows::delete_flow,
         // GitLab integration commands
         gitlab::fetch_gitlab_projects,
         gitlab::fetch_gitlab_pipelines,

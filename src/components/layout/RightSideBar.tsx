@@ -1,4 +1,6 @@
 import { cn } from '@/lib/utils'
+import { NodeDetailsPanel } from '@/components/flow/NodeDetailsPanel'
+import { useUIStore } from '@/store/ui-store'
 
 interface RightSideBarProps {
   children?: React.ReactNode
@@ -6,11 +8,13 @@ interface RightSideBarProps {
 }
 
 export function RightSideBar({ children, className }: RightSideBarProps) {
+  const flowEditorMode = useUIStore(state => state.flowEditorMode)
+
   return (
     <div
       className={cn('flex h-full flex-col border-l bg-background', className)}
     >
-      {children}
+      {flowEditorMode ? <NodeDetailsPanel /> : children}
     </div>
   )
 }

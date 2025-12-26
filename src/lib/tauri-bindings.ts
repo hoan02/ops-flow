@@ -35,6 +35,8 @@ export type {
   GitLabProject,
   GitLabPipeline,
   GitLabWebhook,
+  Flow,
+  FlowMetadata,
 } from './bindings'
 
 /**

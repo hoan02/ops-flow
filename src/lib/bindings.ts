@@ -276,6 +276,51 @@ async deleteIntegrationCredentials(integrationId: string) : Promise<Result<null,
 }
 },
 /**
+ * Load list of all saved flows (metadata only).
+ */
+async loadFlows() : Promise<Result<FlowMetadata[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_flows") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Load a specific flow by ID.
+ */
+async loadFlow(flowId: string) : Promise<Result<Flow, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_flow", { flowId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Save a flow to disk.
+ * Uses atomic write (temp file + rename) to prevent corruption.
+ */
+async saveFlow(flow: Flow) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("save_flow", { flow }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
+ * Delete a flow by ID.
+ */
+async deleteFlow(flowId: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("delete_flow", { flowId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Fetches GitLab projects for a given integration.
  */
 async fetchGitlabProjects(integrationId: string) : Promise<Result<GitLabProject[], string>> {
@@ -498,6 +543,14 @@ namespace: string | null;
  * ID of the project this environment belongs to
  */
 project_id: string }
+/**
+ * Complete flow data including nodes and edges
+ */
+export type Flow = { id: string; name: string; created_at: string; updated_at: string; nodes: JsonValue; edges: JsonValue; viewport: JsonValue | null }
+/**
+ * Flow metadata for listing saved flows
+ */
+export type FlowMetadata = { id: string; name: string; created_at: string; updated_at: string }
 /**
  * GitLab pipeline representation.
  */
