@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import type { NodeProps, Position, Node } from '@xyflow/react'
 import { GitBranch } from 'lucide-react'
 import {
@@ -9,12 +9,32 @@ import {
 } from '@/components/ui/xyflow/base-node'
 import { BaseHandle } from '@/components/ui/xyflow/base-handle'
 import { NodeStatusIndicator } from '@/components/ui/xyflow/node-status-indicator'
+import { Badge } from '@/components/ui/badge'
+import { Spinner } from '@/components/ui/spinner'
+import { useGitLabNodeData } from '@/services/flow-node-data'
 import type { FlowNodeData } from '@/store/flow-store'
 
 export function GitLabNode({ data }: NodeProps<Node<FlowNodeData>>) {
-  const status = (data.status as 'loading' | 'success' | 'error' | 'initial' | undefined) || 'initial'
   const integrationId = data.integrationId ? String(data.integrationId) : null
   const description = data.description ? String(data.description) : null
+
+  const { data: projects, isLoading, isError } = useGitLabNodeData(integrationId)
+
+  // Determine node status based on data fetching state
+  const status = useMemo(() => {
+    if (isLoading) return 'loading'
+    if (isError) return 'error'
+    if (projects && projects.length > 0) return 'success'
+    return 'initial'
+  }, [isLoading, isError, projects])
+
+  const projectCount = projects?.length || 0
+  const selectedProjectId = data.selectedProjectId as number | undefined
+  const selectedProject = useMemo(() => {
+    if (!selectedProjectId || !projects) return null
+    return projects.find(p => p.id === selectedProjectId) || null
+  }, [selectedProjectId, projects])
+
   return (
     <NodeStatusIndicator status={status}>
       <BaseNode className="min-w-[200px]">
@@ -24,14 +44,34 @@ export function GitLabNode({ data }: NodeProps<Node<FlowNodeData>>) {
           <BaseNodeHeaderTitle>{data.label || 'GitLab'}</BaseNodeHeaderTitle>
         </BaseNodeHeader>
         <BaseNodeContent>
-          {integrationId && (
-            <div className="text-xs text-muted-foreground">
-              Integration: {integrationId}
-            </div>
-          )}
           {description && (
             <div className="text-xs text-muted-foreground">
               {description}
+            </div>
+          )}
+          {selectedProject && (
+            <div className="text-xs font-medium truncate">
+              {selectedProject.name}
+            </div>
+          )}
+          {integrationId && (
+            <div className="flex items-center gap-2 flex-wrap">
+              {isLoading && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <Spinner className="size-3" />
+                  <span>Loading...</span>
+                </div>
+              )}
+              {isError && (
+                <Badge variant="destructive" className="text-xs">
+                  Error
+                </Badge>
+              )}
+              {!isLoading && !isError && !selectedProject && (
+                <Badge variant="secondary" className="text-xs">
+                  {projectCount} {projectCount === 1 ? 'project' : 'projects'}
+                </Badge>
+              )}
             </div>
           )}
         </BaseNodeContent>

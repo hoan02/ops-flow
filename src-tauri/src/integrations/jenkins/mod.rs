@@ -103,47 +103,91 @@ impl JenkinsAdapter {
         Ok(())
     }
 
-    /// Fetches all jobs from Jenkins.
+    /// Fetches all jobs from Jenkins, including jobs inside folders (recursively).
     pub async fn fetch_jobs(&self) -> Result<Vec<JenkinsJob>, IntegrationError> {
-        // Use tree parameter to get only needed fields
-        let endpoint = "/api/json?tree=jobs[name,url,color]";
-        let response: Value = self.get(endpoint).await?;
+        use std::collections::VecDeque;
 
-        let jobs_array = response
-            .get("jobs")
-            .and_then(|j| j.as_array())
-            .ok_or_else(|| IntegrationError::ConfigError {
-                message: "Invalid response format: missing 'jobs' array".to_string(),
-            })?;
+        let mut all_jobs = Vec::new();
+        let mut folders_to_process: VecDeque<String> = VecDeque::new();
+        folders_to_process.push_back(String::new()); // Start with root
 
-        let mut jobs = Vec::new();
-        for job_value in jobs_array {
-            let name = job_value
-                .get("name")
-                .and_then(|n| n.as_str())
-                .ok_or_else(|| IntegrationError::ConfigError {
-                    message: "Invalid job format: missing 'name'".to_string(),
-                })?
-                .to_string();
+        // Process folders iteratively (using a queue)
+        while let Some(path) = folders_to_process.pop_front() {
+            // Build endpoint based on path - include _class to identify folders
+            let endpoint = if path.is_empty() {
+                "/api/json?tree=jobs[name,url,color,_class]".to_string()
+            } else {
+                let encoded_path = path
+                    .split('/')
+                    .map(|segment| urlencoding::encode(segment))
+                    .collect::<Vec<_>>()
+                    .join("/job/");
+                format!("/job/{}/api/json?tree=jobs[name,url,color,_class]", encoded_path)
+            };
 
-            let url = job_value
-                .get("url")
-                .and_then(|u| u.as_str())
-                .ok_or_else(|| IntegrationError::ConfigError {
-                    message: "Invalid job format: missing 'url'".to_string(),
-                })?
-                .to_string();
+            let response: Value = match self.get(&endpoint).await {
+                Ok(r) => r,
+                Err(e) => {
+                    log::warn!("Failed to fetch from path {}: {}", path, e);
+                    continue; // Skip this folder and continue
+                }
+            };
 
-            let color = job_value
-                .get("color")
-                .and_then(|c| c.as_str())
-                .unwrap_or("notbuilt")
-                .to_string();
+            let jobs_array = match response.get("jobs").and_then(|j| j.as_array()) {
+                Some(arr) => arr,
+                None => {
+                    log::warn!("Invalid response format for path {}: missing 'jobs' array", path);
+                    continue;
+                }
+            };
 
-            jobs.push(JenkinsJob { name, url, color });
+            // Process each item in this folder
+            for job_value in jobs_array {
+                let name = match job_value.get("name").and_then(|n| n.as_str()) {
+                    Some(n) => n.to_string(),
+                    None => continue, // Skip invalid items
+                };
+
+                let url = match job_value.get("url").and_then(|u| u.as_str()) {
+                    Some(u) => u.to_string(),
+                    None => continue,
+                };
+
+                let color = job_value
+                    .get("color")
+                    .and_then(|c| c.as_str())
+                    .unwrap_or("notbuilt")
+                    .to_string();
+
+                // Check _class field to determine if this is a folder
+                // Folders have _class like "com.cloudbees.hudson.plugins.folder.Folder"
+                let class_name = job_value
+                    .get("_class")
+                    .and_then(|c| c.as_str())
+                    .unwrap_or("");
+                let is_folder = class_name.contains("Folder") || color == "folder";
+
+                let full_path = if path.is_empty() {
+                    name.clone()
+                } else {
+                    format!("{}/{}", path, name)
+                };
+
+                if is_folder {
+                    // Add to queue for processing
+                    folders_to_process.push_back(full_path);
+                } else {
+                    // This is an actual job - add it to results
+                    all_jobs.push(JenkinsJob {
+                        name: full_path,
+                        url,
+                        color,
+                    });
+                }
+            }
         }
 
-        Ok(jobs)
+        Ok(all_jobs)
     }
 
     /// Fetches builds for a specific job.
